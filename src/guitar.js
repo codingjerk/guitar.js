@@ -1,9 +1,8 @@
-var Guitar = function (id) {
+var Guitar = function (id, settings) {
     var guitar = this;
     var tools = {};
     var $s, $x, $c; // Aliases to settings, context and canvas
 
-    // @TODO: allow to override settings
     guitar.settings = {
         'bridge-margin': 7,
         'start-border-margin': 15,
@@ -43,6 +42,10 @@ var Guitar = function (id) {
             21: 'star',
             24: 'double-star',
         },
+    };
+
+    for (var property in settings) {
+        guitar.settings[property] = settings[property];
     };
 
     guitar.settings['fret-count'] = guitar.settings['end-fret'] - guitar.settings['start-fret'] + 1;
