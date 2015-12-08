@@ -16,7 +16,7 @@ var Guitar = function (id) {
         'fret-color': '#bbb',
         'sign-color': '#bbb',
 
-        'string-width': 2, // @TODO: individual string width, or string-width function (from argument)
+        'string-width': [1, 1, 2, 2, 3, 4],
         'bridge-width': 8,
         'fret-width': 4,
         'sign-size': 5,
@@ -113,6 +113,20 @@ var Guitar = function (id) {
         return startHeight + (endHeight - startHeight) * (fretX / realWidth);
     };
 
+    guitar.getStringWidth = function(i) {
+        var s = $s['string-width'];
+
+        if (s instanceof Number) {
+            return s;
+        } else if (s instanceof Array) {
+            return s[i];
+        } else if (s instanceof Function) {
+            return s(i);
+        }
+
+        throw Error("string-width must be Number, Array (of Numbers) or Function");
+    };
+
     guitar.drawBridge = function() {
         var startX = $s['bridge-margin'];
         var startY = $s['start-border-margin'] - $s['bridge-ledge'];
@@ -134,7 +148,7 @@ var Guitar = function (id) {
         var endX = $c.width - $s['space-margin'];
         var endY = $s['end-border-margin'] + $s['string-outer-margin'] + i * endOffset;
 
-        tools.drawLine(startX, startY, endX, endY, $s['string-color'], $s['string-width']);
+        tools.drawLine(startX, startY, endX, endY, $s['string-color'], guitar.getStringWidth(i));
     };
 
     guitar.drawFret = function(i) {
@@ -164,6 +178,7 @@ var Guitar = function (id) {
         var fretHeight = startHeight + (endHeight - startHeight) * (centerX / realWidth);
 
         // @TODO: relative radius
+        // @TODO: refactor
         if (sign === 'dot') {
             tools.drawCircle(centerX, centerY, $s['sign-size'], $s['sign-color']);
         } else if (sign === 'star') {
