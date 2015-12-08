@@ -22,8 +22,8 @@ var Guitar = function (id, settings) {
     };
 
     guitar.redraw = function() {
-        $c.setAttribute('width', guitar.container.offsetWidth);
-        $c.setAttribute('height', guitar.container.offsetHeight);
+        $c.width = guitar.container.offsetWidth;
+        $c.height = guitar.container.offsetHeight;
 
         // @TODO: DO SOMETHING!
         // @TODO: Rebuild table only if settings or width changed
