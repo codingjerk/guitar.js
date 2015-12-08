@@ -3,53 +3,6 @@ var Guitar = function (id, settings) {
     var tools = {};
     var $s, $x, $c; // Aliases to settings, context and canvas
 
-    guitar.settings = {
-        'bridge-margin': 7,
-        'start-border-margin': 15,
-        'end-border-margin': 3,
-        'string-outer-margin': 8,
-        'space-margin': 5,
-
-        'string-color': '#000',
-        'bridge-color': '#999',
-        'fret-color': '#bbb',
-        'sign-color': '#bbb',
-
-        'string-width': [1, 1, 2, 2, 3, 4],
-        'bridge-width': 8,
-        'fret-width': 4,
-        'sign-size': 5,
-
-        'bridge-ledge': -3,
-
-        'orientation': 'horizontal', // @TODO: allow to switch
-        'proection': 'orthogonal', // @TODO: allow to switch
-
-        'string-count': 6,
-
-        'start-fret': 1,
-        'end-fret': 24,
-
-        'fret-signs': {
-            3: 'star',
-            5: 'star',
-            7: 'double-star',
-            9: 'star',
-            12: 'double-star',
-            15: 'star',
-            17: 'star',
-            19: 'star',
-            21: 'star',
-            24: 'double-star',
-        },
-    };
-
-    for (var property in settings) {
-        guitar.settings[property] = settings[property];
-    };
-
-    guitar.settings['fret-count'] = guitar.settings['end-fret'] - guitar.settings['start-fret'] + 1;
-
     guitar.create = function() {
         guitar.id = id;
         guitar.container = document.getElementById(id);
@@ -242,6 +195,55 @@ var Guitar = function (id, settings) {
         $x.closePath();
         $x.restore();
     };
+
+    guitar.settings = {
+        'bridge-margin': 7,
+        'start-border-margin': 15,
+        'end-border-margin': 3,
+        'string-outer-margin': 8,
+        'space-margin': 5,
+
+        'string-color': '#000',
+        'bridge-color': '#999',
+        'fret-color': '#bbb',
+        'sign-color': '#bbb',
+
+        'string-width': [1, 1, 2, 2, 3, 4],
+        'bridge-width': 8,
+        'fret-width': 4,
+        'sign-size': 5,
+
+        'bridge-ledge': -3,
+
+        'orientation': 'horizontal', // @TODO: allow to switch
+        'scale': 'linear', // @TODO: allow to switch
+
+        'string-count': 6,
+
+        'start-fret': 1,
+        'end-fret': 24,
+
+        'fret-signs': {
+            3: 'star',
+            5: 'star',
+            7: 'double-star',
+            9: 'star',
+            12: 'double-star',
+            15: 'star',
+            17: 'star',
+            19: 'star',
+            21: 'star',
+            24: 'double-star',
+        },
+    };
+
+    for (var property in settings) {
+        if (settings.hasOwnProperty(property)) {
+            guitar.settings[property] = settings[property];
+        }
+    }
+
+    guitar.settings['fret-count'] = guitar.settings['end-fret'] - guitar.settings['start-fret'] + 1;
 
     guitar.create();
 };
