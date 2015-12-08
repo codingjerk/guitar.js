@@ -43,9 +43,7 @@ var Guitar = function (id, settings) {
             if (sign !== undefined) {
                 guitar.drawSign(f, sign);
             }
-        }
 
-        for (var f = $s['start-fret']; f <= $s['end-fret']; ++f) {
             guitar.drawFret(f);
         }
 
