@@ -45,6 +45,7 @@ var Guitar = function (id, settings) {
             }
 
             guitar.drawFret(f);
+            guitar.drawFretNumber(f);
         }
 
         for (var i = 0; i < $s['string-count']; ++i) {
@@ -132,11 +133,19 @@ var Guitar = function (id, settings) {
         tools.drawLine(startX, startY, endX, endY, $s['fret-color'], $s['fret-width']);
     };
 
+    guitar.drawFretNumber = function(f) {
+        var fretX = guitar.getInterFretX(f) + $s['bridge-margin'];
+        var fretHeight = guitar.getFretHeightByX(fretX);
+        var verticalOffset = ($c.height - fretHeight) / 2;
+
+        tools.drawText(f, fretX, $c.height - verticalOffset + $s['fret-number-margin'], $s['fret-number-font']);
+    };
+
     guitar.drawSign = function(fret, sign) {
         var centerX = guitar.getInterFretX(fret) + $s['bridge-margin'];
         var centerY = $c.height / 2;
 
-        var fretHeight = getFretHeightByX(centerX);
+        var fretHeight = guitar.getFretHeightByX(centerX);
         var doubleOffset = fretHeight / 4;
 
         // @TODO: relative radius
@@ -180,6 +189,13 @@ var Guitar = function (id, settings) {
         $x.closePath();
     };
 
+    tools.drawText = function(text, x, y, font) {
+        $x.font = font;
+        $x.textAlign = 'center';
+        $x.textBaseline = 'top';
+        $x.fillText(text, x, y);
+    };
+
     tools.drawStar = function(x, y, radius, pikes, color) {
         $x.save();
         $x.beginPath();
@@ -202,9 +218,10 @@ var Guitar = function (id, settings) {
     guitar.settings = {
         'bridge-margin': 7,
         'start-border-margin': 15,
-        'end-border-margin': 3,
-        'string-outer-margin': 8,
+        'end-border-margin': 15,
+        'string-outer-margin': 3,
         'space-margin': 5,
+        'fret-number-margin': 7,
 
         'string-color': '#000',
         'bridge-color': '#999',
@@ -214,9 +231,10 @@ var Guitar = function (id, settings) {
         'string-width': [1, 1, 2, 2, 3, 4],
         'bridge-width': 8,
         'fret-width': 4,
+        'fret-number-font': '12px sans-serif',
         'sign-size': 5,
 
-        'bridge-ledge': -3,
+        'bridge-ledge': 0,
 
         'orientation': 'horizontal', // @TODO: allow to switch
         'scale': 'linear', // @TODO: allow to switch
