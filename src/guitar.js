@@ -52,19 +52,32 @@ var Guitar = function (id, settings) {
         }
 
         guitar.drawBridge();
+
+        // @TODO - draw: fret numbers, marks
     };
 
     guitar.getFretX = function(fret) {
         return guitar.fretXs[fret - $s['start-fret']];
     };
 
-    guitar.getFretHeight = function(fret) {
-        var fretX = guitar.getFretX(fret);
+    guitar.getInterFretX = function(fret) {
+        var fretPrev = guitar.getFretX(fret - 1) || 0;
+        var fretNext = guitar.getFretX(fret);
+
+        return (fretNext + fretPrev) / 2;
+    };
+
+    guitar.getFretHeightByX = function(x) {
         var startHeight = $c.height - ($s['start-border-margin'] + $s['string-outer-margin']) * 2;
         var endHeight = $c.height - ($s['end-border-margin'] + $s['string-outer-margin']) * 2;
         var realWidth = $c.width - $s['bridge-margin'] * 2;
 
-        return startHeight + (endHeight - startHeight) * (fretX / realWidth);
+        return startHeight + (endHeight - startHeight) * (x / realWidth);
+    };
+
+    guitar.getFretHeight = function(fret) {
+        var fretX = guitar.getFretX(fret);
+        return guitar.getFretHeightByX(fretX);
     };
 
     guitar.getStringWidth = function(i) {
@@ -120,33 +133,25 @@ var Guitar = function (id, settings) {
     };
 
     guitar.drawSign = function(fret, sign) {
-        var fretPrev = guitar.getFretX(fret - 1) || 0;
-        var fretNext = guitar.getFretX(fret);
-
-        var centerX = (fretNext + fretPrev) / 2 + $s['bridge-margin'];
+        var centerX = guitar.getInterFretX(fret) + $s['bridge-margin'];
         var centerY = $c.height / 2;
 
-        var startHeight = $c.height - ($s['start-border-margin'] + $s['string-outer-margin']) * 2;
-        var endHeight = $c.height - ($s['end-border-margin'] + $s['string-outer-margin']) * 2;
-        var realWidth = $c.width - $s['bridge-margin'] * 2;
-        var fretHeight = startHeight + (endHeight - startHeight) * (centerX / realWidth);
+        var fretHeight = getFretHeightByX(centerX);
+        var doubleOffset = fretHeight / 4;
 
         // @TODO: relative radius
-        // @TODO: refactor
+        var radius = $s['sign-size'];
+
         if (sign === 'dot') {
-            tools.drawCircle(centerX, centerY, $s['sign-size'], $s['sign-color']);
+            tools.drawCircle(centerX, centerY, radius, $s['sign-color']);
         } else if (sign === 'star') {
-            tools.drawStar(centerX, centerY, $s['sign-size'] * 4.2, 5, $s['sign-color']);
-        } else if (sign === 'double-star') {
-            var offset = fretHeight / 4;
-
-            tools.drawStar(centerX, centerY - offset, $s['sign-size'] * 3.2, 5, $s['sign-color']);
-            tools.drawStar(centerX, centerY + offset, $s['sign-size'] * 3.2, 5, $s['sign-color']);
+            tools.drawStar(centerX, centerY, radius, 5, $s['sign-color']);
         } else if (sign === 'double-dot') {
-            var offset = fretHeight / 4;
-
-            tools.drawCircle(centerX, centerY - offset, $s['sign-size'], $s['sign-color']);
-            tools.drawCircle(centerX, centerY + offset, $s['sign-size'], $s['sign-color']);
+            tools.drawCircle(centerX, centerY - doubleOffset, radius, $s['sign-color']);
+            tools.drawCircle(centerX, centerY + doubleOffset, radius, $s['sign-color']);
+        } else if (sign === 'double-star') {
+            tools.drawStar(centerX, centerY - doubleOffset, radius, 5, $s['sign-color']);
+            tools.drawStar(centerX, centerY + doubleOffset, radius, 5, $s['sign-color']);
         } else {
             throw Error("Unknown sign type: " + sign);
         }
