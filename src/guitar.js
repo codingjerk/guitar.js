@@ -62,6 +62,7 @@ var Guitar = function (id) {
         $c = guitar.canvas;
 
         guitar.redraw();
+        addEventListener('resize', guitar.redraw);
     };
 
     guitar.redraw = function() {
@@ -98,8 +99,6 @@ var Guitar = function (id) {
 
         guitar.drawBridge();
     };
-
-    addEventListener('resize', guitar.redraw);
 
     guitar.getFretX = function(fret) {
         return guitar.fretXs[fret - $s['start-fret']];
