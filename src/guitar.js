@@ -138,7 +138,7 @@ var Guitar = function (id, settings) {
         var fretHeight = guitar.getFretHeightByX(fretX);
         var verticalOffset = ($c.height - fretHeight) / 2;
 
-        tools.drawText(f, fretX, $c.height - verticalOffset + $s['fret-number-margin'], $s['fret-number-font']);
+        tools.drawText(f, fretX, $c.height - verticalOffset + $s['fret-number-margin'], $s['fret-number-font'], $s['fret-number-color']);
     };
 
     guitar.drawSign = function(fret, sign) {
@@ -189,9 +189,10 @@ var Guitar = function (id, settings) {
         $x.closePath();
     };
 
-    tools.drawText = function(text, x, y, font) {
+    tools.drawText = function(text, x, y, font, color) {
         $x.font = font;
         $x.textAlign = 'center';
+        $x.fillStyle = color;
         $x.textBaseline = 'top';
         $x.fillText(text, x, y);
     };
@@ -227,6 +228,7 @@ var Guitar = function (id, settings) {
         'bridge-color': '#999',
         'fret-color': '#bbb',
         'sign-color': '#bbb',
+        'fret-number-color': '#bbb',
 
         'string-width': [1, 1, 2, 2, 3, 4],
         'bridge-width': 8,
