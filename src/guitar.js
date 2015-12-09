@@ -57,12 +57,7 @@ var Guitar = function (id, settings) {
 
         guitar.drawBridge();
 
-        $s['marks'].forEach(function(mark) {
-            var string = mark[0];
-            var fret = mark[1];
-
-            guitar.drawMark(string, fret);
-        });
+        $s['marks'].forEach(guitar.drawMark);
     };
 
     guitar.rebuildFrets = function() {
@@ -185,7 +180,7 @@ var Guitar = function (id, settings) {
         var fretHeight = guitar.getFretHeightByX(fretX);
         var verticalOffset = ($c.height - fretHeight) / 2;
 
-        tools.drawText(f, fretX, $c.height - verticalOffset + $s['fret-number-margin'], $s['fret-number-font'], $s['fret-number-color']);
+        tools.drawText(f, fretX, $c.height - verticalOffset + $s['fret-number-margin'], 'top', $s['fret-number-font'], $s['fret-number-color']);
     };
 
     guitar.drawSign = function(fret, sign) {
@@ -212,15 +207,22 @@ var Guitar = function (id, settings) {
         }
     };
 
-    guitar.drawMark = function(string, fret) {
-        var fretX = guitar.getInterFretX(fret, $s['mark-position']);
+    guitar.drawMark = function(mark) {
+        var fretX = guitar.getInterFretX(mark.fret, $s['mark-position']);
         var height = guitar.getFretHeightByX(fretX);
         var yOffset = ($c.height - height) / 2;
 
         var x = fretX + $s['bridge-margin'];
-        var y = yOffset + height * string / ($s['string-count'] - 1);
+        var y = yOffset + height * mark.string / ($s['string-count'] - 1);
 
-        tools.drawCircle(x, y, $s['mark-size'], $s['mark-color']);
+        var size = mark.size || $s['mark-size'];
+        var color = mark.color || $s['mark-color'];
+
+        tools.drawCircle(x, y, size, color);
+
+        var text = mark.text || $s['mark-text'];
+        var textColor = tools.chooseForeground(color);
+        tools.drawText(text, x, y, 'middle', $s['mark-font'], textColor);
     };
 
     tools.drawLine = function(fromX, fromY, toX, toY, style, width) {
@@ -246,11 +248,11 @@ var Guitar = function (id, settings) {
         $x.closePath();
     };
 
-    tools.drawText = function(text, x, y, font, color) {
+    tools.drawText = function(text, x, y, valign, font, color) {
         $x.font = font;
         $x.textAlign = 'center';
         $x.fillStyle = color;
-        $x.textBaseline = 'top';
+        $x.textBaseline = valign;
         $x.fillText(text, x, y);
     };
 
@@ -290,6 +292,42 @@ var Guitar = function (id, settings) {
         return this.result;
     };
 
+    tools.parseColor = function(val) {
+        var toInt = function(x) {return parseInt(x, 10);};
+
+        // #xxxxxx
+        var r = val.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+        if (r) {
+            return r.slice(1,4).map(function(x) { return parseInt(x, 16); });
+        }
+
+        // #xxx
+        var r = val.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i);
+        if (r) {
+            return r.slice(1,4).map(function(x) { return 0x11 * parseInt(x, 16); });
+        }
+
+        // rgb(x, x, x)
+        var digits = /(.*?)rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/.exec(val);
+        if (digits.length === 5) {
+            return digits.slice(2).map(toInt);
+        }
+
+        return null;
+    };
+
+    tools.chooseForeground = function(backgroud) {
+        var rgb = tools.parseColor(backgroud);
+        var sum = tools.sum(rgb);
+        var limit = 127 * 3;
+
+        if (sum >= limit) {
+            return '#333';
+        } else {
+            return '#fafafa';
+        }
+    };
+
     guitar.settings = {
         'bridge-margin': 7,
         'start-border-margin': 15,
@@ -310,8 +348,9 @@ var Guitar = function (id, settings) {
         'bridge-width': 8,
         'fret-width': 4,
         'fret-number-font': '12px sans-serif',
+        'mark-font': '12px sans-serif',
         'sign-size': 5,
-        'mark-size': 5,
+        'mark-size': 10,
 
         'bridge-ledge': 0,
 
@@ -322,6 +361,8 @@ var Guitar = function (id, settings) {
 
         'start-fret': 1,
         'end-fret': 24,
+
+        'mark-text': 'M',
 
         'fret-signs': {
             3: 'star',
@@ -337,12 +378,36 @@ var Guitar = function (id, settings) {
         },
 
         'marks': [
-            [0, 0],
-            [1, 1],
-            [2, 2],
-            [3, 3],
-            [4, 4],
-            [5, 5],
+            {
+                string: 0,
+                fret: 0,
+                color: '#e9e',
+                text: 'E',
+            },
+            {
+                string: 1,
+                fret: 1,
+                size: 3,
+            },
+            {
+                string: 2,
+                fret: 2,
+                color: '#9ee',
+            },
+            {
+                string: 3,
+                fret: 3,
+            },
+            {
+                string: 4,
+                fret: 4,
+                size: 3,
+                color: '#ee9',
+            },
+            {
+                string: 5,
+                fret: 5,
+            },
         ],
     };
 
