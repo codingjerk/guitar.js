@@ -57,7 +57,12 @@ var Guitar = function (id, settings) {
 
         guitar.drawBridge();
 
-        // @TODO - draw: marks
+        $s['marks'].forEach(function(mark) {
+            var string = mark[0];
+            var fret = mark[1];
+
+            guitar.drawMark(string, fret);
+        });
     };
 
     guitar.rebuildFrets = function() {
@@ -97,14 +102,17 @@ var Guitar = function (id, settings) {
     };
 
     guitar.getFretX = function(fret) {
+        if (fret === 0) return 0;
         return guitar.fretXs[fret - $s['start-fret']];
     };
 
-    guitar.getInterFretX = function(fret) {
+    guitar.getInterFretX = function(fret, coeff) {
+        coeff = coeff === undefined? 0.5: coeff;
+
         var fretPrev = guitar.getFretX(fret - 1) || 0;
         var fretNext = guitar.getFretX(fret);
 
-        return (fretNext + fretPrev) / 2;
+        return (fretPrev * (1 - coeff) + fretNext * coeff);
     };
 
     guitar.getFretHeightByX = function(x) {
@@ -187,7 +195,6 @@ var Guitar = function (id, settings) {
         var fretHeight = guitar.getFretHeightByX(centerX);
         var doubleOffset = fretHeight / 4;
 
-        // @TODO: relative radius
         var radius = $s['sign-size'];
 
         if (sign === 'dot') {
@@ -203,6 +210,17 @@ var Guitar = function (id, settings) {
         } else {
             throw Error("Unknown sign type: " + sign);
         }
+    };
+
+    guitar.drawMark = function(string, fret) {
+        var fretX = guitar.getInterFretX(fret, $s['mark-position']);
+        var height = guitar.getFretHeightByX(fretX);
+        var yOffset = ($c.height - height) / 2;
+
+        var x = fretX + $s['bridge-margin'];
+        var y = yOffset + height * string / ($s['string-count'] - 1);
+
+        tools.drawCircle(x, y, $s['mark-size'], $s['mark-color']);
     };
 
     tools.drawLine = function(fromX, fromY, toX, toY, style, width) {
@@ -279,22 +297,25 @@ var Guitar = function (id, settings) {
         'string-outer-margin': 3,
         'space-margin': 5,
         'fret-number-margin': 7,
+        'mark-position': 0.65,
 
         'string-color': '#000',
         'bridge-color': '#999',
         'fret-color': '#bbb',
         'sign-color': '#bbb',
         'fret-number-color': '#bbb',
+        'mark-color': '#6b7',
 
         'string-width': [1, 1, 2, 2, 3, 4],
         'bridge-width': 8,
         'fret-width': 4,
         'fret-number-font': '12px sans-serif',
         'sign-size': 5,
+        'mark-size': 5,
 
         'bridge-ledge': 0,
 
-        'orientation': 'horizontal', // @TODO: allow to switch
+        'orientation': 'horizontal',
         'scale': 'real',
 
         'string-count': 6,
@@ -314,15 +335,16 @@ var Guitar = function (id, settings) {
             21: 'star',
             24: 'double-star',
         },
+
+        'marks': [
+            [0, 0],
+            [1, 1],
+            [2, 2],
+            [3, 3],
+            [4, 4],
+            [5, 5],
+        ],
     };
-
-    for (var property in settings) {
-        if (settings.hasOwnProperty(property)) {
-            guitar.settings[property] = settings[property];
-        }
-    }
-
-    guitar.settings['fret-count'] = guitar.settings['end-fret'] - guitar.settings['start-fret'] + 1;
 
     guitar.create();
     guitar.updateSettings(settings);
