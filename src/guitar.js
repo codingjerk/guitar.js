@@ -25,17 +25,10 @@ var Guitar = function (id, settings) {
         $c.width = guitar.container.offsetWidth;
         $c.height = guitar.container.offsetHeight;
 
-        // @TODO: DO SOMETHING!
-        // @TODO: Rebuild table only if settings or width changed
+        guitar.rebuildFrets();
+
         var width = $c.width;
         var height = $c.height;
-
-        var realWidth = width - $s['bridge-margin'] * 2;
-        guitar.fretXs = [];
-        for (var n = 0; n <= $s['fret-count']; ++n) {
-            guitar.fretXs[n] = realWidth * (n + 1) / $s['fret-count'];
-        }
-
         $x.clearRect(0, 0, width, height);
 
         for (var f = $s['start-fret']; f <= $s['end-fret']; ++f) {
@@ -54,7 +47,43 @@ var Guitar = function (id, settings) {
 
         guitar.drawBridge();
 
-        // @TODO - draw: fret numbers, marks
+        // @TODO - draw: marks
+    };
+
+    guitar.rebuildFrets = function() {
+        if (this.oldWidth === $c.width) return;
+
+        if ($s['scale'] === 'real') {
+            var coeff = guitar.getFretCoeff();
+            guitar.fretXs = [0];
+            for (var n = 0; n < $s['fret-count']; ++n) {
+                guitar.fretXs[n] += coeff[n];
+                guitar.fretXs[n + 1] = guitar.fretXs[n];
+            }
+        } else if ($s['scale'] === 'linear') {
+            var realWidth = $c.width - $s['bridge-margin'] * 2;
+            guitar.fretXs = [];
+            for (var n = 0; n < $s['fret-count']; ++n) {
+                guitar.fretXs[n] = realWidth * (n + 1) / $s['fret-count'];
+            }
+        } else {
+            throw Error('Unknown scale option value: ' + $s['scale']);
+        }
+
+        this.oldWidth = $c.width;
+    };
+
+    guitar.getFretCoeff = function() {
+        var raw = tools.rawCoeff().slice(0, $s['fret-count']);
+        var realWidth = $c.width - $s['bridge-margin'] * 2;
+        var mul = realWidth / tools.sum(raw);
+
+        var result = [];
+        for (var i = 0; i < $s['fret-count']; ++i) {
+            result[i] = raw[i] * mul;
+        }
+
+        return result;
     };
 
     guitar.getFretX = function(fret) {
@@ -172,7 +201,7 @@ var Guitar = function (id, settings) {
         $x.lineWidth = width;
         $x.strokeStyle = style;
 
-        var padding = width % 2 == 0? 0: 0.5;
+        var padding = width % 2 === 0? 0: 0.5;
 
         $x.moveTo(Math.round(fromX) + padding, Math.round(fromY) + padding);
         $x.lineTo(Math.round(toX) + padding, Math.round(toY) + padding);
@@ -216,6 +245,23 @@ var Guitar = function (id, settings) {
         $x.restore();
     };
 
+    tools.sum = function(list) {
+        return list.reduce(function(acc, x) {
+            return acc + x;
+        });
+    };
+
+    tools.rawCoeff = function() {
+        if (this.result === undefined) {
+            this.result = [];
+            for (var i = 0; i < 100; ++i) {
+                this.result[i] = Math.pow(2, -i / 12);
+            }
+        }
+
+        return this.result;
+    };
+
     guitar.settings = {
         'bridge-margin': 7,
         'start-border-margin': 15,
@@ -239,7 +285,7 @@ var Guitar = function (id, settings) {
         'bridge-ledge': 0,
 
         'orientation': 'horizontal', // @TODO: allow to switch
-        'scale': 'linear', // @TODO: allow to switch
+        'scale': 'real',
 
         'string-count': 6,
 
