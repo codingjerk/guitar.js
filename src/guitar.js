@@ -1,6 +1,7 @@
 var Guitar = function (id, settings) {
     var guitar = this;
     var tools = {};
+    var notes = {};
     var $s, $x, $c; // Aliases to settings, context and canvas
 
     guitar.create = function() {
@@ -221,6 +222,13 @@ var Guitar = function (id, settings) {
         tools.drawCircle(x, y, size, color);
 
         var text = mark.text || $s['mark-text'];
+        if ($s['show-notes'] && !mark.text) {
+            var stringNote = $s['tuning'][mark.string];
+            var fretNote = stringNote + mark.fret;
+
+            text = notes.showNote(fretNote);
+        }
+
         var textColor = tools.chooseForeground(color);
         tools.drawText(text, x, y, 'middle', $s['mark-font'], textColor);
     };
@@ -328,10 +336,38 @@ var Guitar = function (id, settings) {
         }
     };
 
+    notes.parseNote = function(text) {
+        var note = text[0];
+        var alter = text[1];
+        var octave = text[text.length - 1];
+
+        var modifier = 0;
+        if (alter === '#') {
+            modifier = 1;
+        } else if (alter === 'b') {
+            modifier = -1;
+        }
+
+        var noteIndex = 'C-D-EF-G-A-B'.indexOf(note);
+        var withModifier = noteIndex + modifier;
+        var octaveIndex = parseInt(octave);
+        var absoluteValue = withModifier + 12 * octaveIndex;
+
+        return absoluteValue;
+    };
+
+    notes.showNote = function(index) {
+        var note = index % 12;
+        var octave = (index - note) / 12;
+
+        var result = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][note] + octave;
+        return result;
+    };
+
     guitar.settings = {
-        'bridge-margin': 7,
-        'start-border-margin': 15,
-        'end-border-margin': 15,
+        'bridge-margin': 12,
+        'start-border-margin': 20,
+        'end-border-margin': 20,
         'string-outer-margin': 3,
         'space-margin': 5,
         'fret-number-margin': 7,
@@ -357,12 +393,15 @@ var Guitar = function (id, settings) {
         'orientation': 'horizontal',
         'scale': 'real',
 
+        'mark-text': 'M',
+        'show-notes': true,
+
         'string-count': 6,
 
         'start-fret': 1,
         'end-fret': 24,
 
-        'mark-text': 'M',
+        'tuning': ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'].map(notes.parseNote),
 
         'fret-signs': {
             3: 'star',
