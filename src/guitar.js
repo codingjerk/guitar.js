@@ -17,8 +17,18 @@ var Guitar = function (id, settings) {
         $x = guitar.context;
         $c = guitar.canvas;
 
-        guitar.redraw();
         addEventListener('resize', guitar.redraw);
+    };
+
+    guitar.updateSettings = function (settings) {
+        for (var property in settings) {
+            if (settings.hasOwnProperty(property)) {
+                $s[property] = settings[property];
+            }
+        }
+
+        $s['fret-count'] = $s['end-fret'] - $s['start-fret'] + 1;
+        guitar.redraw();
     };
 
     guitar.redraw = function() {
@@ -315,4 +325,5 @@ var Guitar = function (id, settings) {
     guitar.settings['fret-count'] = guitar.settings['end-fret'] - guitar.settings['start-fret'] + 1;
 
     guitar.create();
+    guitar.updateSettings(settings);
 };
