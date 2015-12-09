@@ -222,15 +222,23 @@ var Guitar = function (id, settings) {
         tools.drawCircle(x, y, size, color);
 
         var text = mark.text || $s['mark-text'];
-        if ($s['show-notes'] && !mark.text) {
+        if (!mark.text) {
             var stringNote = $s['tuning'][mark.string];
             var fretNote = stringNote + mark.fret;
 
-            text = notes.showNote(fretNote);
+            var note = notes.showNote(fretNote);
+
+            if ($s['show-notes'] === 'simple') {
+                text = note.slice(0, note.length - 1);
+            } else if ($s['show-notes'] === 'full') {
+                text = note;
+            } else {
+                throw Error("Unknown show-notes value");
+            }
         }
 
         var textColor = tools.chooseForeground(color);
-        tools.drawText(text, x, y, 'middle', $s['mark-font'], textColor);
+        tools.drawScaledText(text, x, y, 'middle', $s['mark-font'], textColor, size);
     };
 
     tools.drawLine = function(fromX, fromY, toX, toY, style, width) {
@@ -262,6 +270,26 @@ var Guitar = function (id, settings) {
         $x.fillStyle = color;
         $x.textBaseline = valign;
         $x.fillText(text, x, y);
+    };
+
+    tools.drawScaledText = function(text, x, y, valign, font, color, maxWidth) {
+        $x.save();
+        $x.font = font;
+        $x.textAlign = 'center';
+        $x.fillStyle = color;
+        $x.textBaseline = valign;
+
+        var metrics = $x.measureText(text);
+        var textWidth = metrics.width;
+
+        var scaleFactor = 1;
+        if (textWidth > maxWidth) {
+            scaleFactor = maxWidth / textWidth;
+            $x.scale(scaleFactor, scaleFactor);
+        }
+
+        $x.fillText(text, x / scaleFactor, y / scaleFactor);
+        $x.restore();
     };
 
     tools.drawStar = function(x, y, radius, pikes, color) {
@@ -394,7 +422,7 @@ var Guitar = function (id, settings) {
         'scale': 'real',
 
         'mark-text': 'M',
-        'show-notes': true,
+        'show-notes': 'simple',
 
         'string-count': 6,
 
@@ -426,7 +454,7 @@ var Guitar = function (id, settings) {
             {
                 string: 1,
                 fret: 1,
-                size: 3,
+                size: 20,
             },
             {
                 string: 2,
@@ -440,8 +468,8 @@ var Guitar = function (id, settings) {
             {
                 string: 4,
                 fret: 4,
-                size: 3,
-                color: '#ee9',
+                size: 15,
+                color: '#456',
             },
             {
                 string: 5,
