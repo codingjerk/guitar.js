@@ -1,0 +1,29 @@
+{
+  "name": "guitar.js",
+  "homepage": "https://github.com/chezstov/guitar.js",
+  "authors": [
+    "Denis Gruzdev <chezstov@gmail.com>"
+  ],
+  "description": "Guitar.js is a guitar fretboard rendering library",
+  "main": "build/guitar.min.js",
+  "moduleType": [],
+  "keywords": [
+    "guitar",
+    "fretboard",
+    "notes",
+    "note",
+    "music"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "src",
+    "example",
+    "img",
+    "*.md",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
