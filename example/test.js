@@ -31,6 +31,8 @@ new Guitar('flip-guitar', {
     'fret-number-margin': 5,
     'orientation': 'vertical',
     'end-fret': 5,
+
+    'string-order': 'right-to-left',
 });
 
 new Guitar('frets-guitar', {
