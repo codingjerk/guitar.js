@@ -255,7 +255,7 @@ var Guitar = function (id, settings) {
         } else if ($s['scale'] === 'linear') {
             guitar.fretLs = [];
             for (var n = 0; n < $s['fret-count']; ++n) {
-                guitar.fretLs[n] = (guitar.workLong() - $['fret-width']) * (n + 1) / $s['fret-count'];
+                guitar.fretLs[n] = (guitar.workLong() - $s['fret-width']) * (n + 1) / $s['fret-count'];
             }
         } else {
             throw Error('Unknown scale option value: ' + $s['scale']);
@@ -266,7 +266,7 @@ var Guitar = function (id, settings) {
 
     guitar.fretCoeff = function() {
         var raw = tools.rawCoeff().slice(0, $s['fret-count']);
-        var mul = (guitar.workLong() - $['fret-width']) / tools.sum(raw);
+        var mul = (guitar.workLong() - $s['fret-width']) / tools.sum(raw);
 
         var result = [];
         for (var i = 0; i < $s['fret-count']; ++i) {
