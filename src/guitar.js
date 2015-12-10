@@ -104,11 +104,23 @@ var Guitar = function (id, settings) {
     };
 
     guitar.startStringS = function(i) {
-        return $s['start-border-margin'] + $s['string-outer-margin'] + i * guitar.startStringGap(i);
+        if ($s['string-order'] === 'right-to-left' || $s['string-order'] === 'bottom-to-top') {
+            return $s['start-border-margin'] + $s['string-outer-margin'] + ($s['string-count'] - i - 1) * guitar.startStringGap(i);
+        } else if ($s['string-order'] === 'left-to-right' || $s['string-order'] === 'top-to-bottom') {
+            return $s['start-border-margin'] + $s['string-outer-margin'] + i * guitar.startStringGap(i);
+        } else {
+            throw Error('String-order option must be left-to-right, top-to-bottom, right-to-left or bottom-to-top');
+        }
     };
 
     guitar.endStringS = function(i) {
-        return $s['start-border-margin'] + $s['string-outer-margin'] + i * guitar.endStringGap(i);
+        if ($s['string-order'] === 'right-to-left' || $s['string-order'] === 'bottom-to-top') {
+            return $s['start-border-margin'] + $s['string-outer-margin'] + ($s['string-count'] - i - 1) * guitar.endStringGap(i);
+        } else if ($s['string-order'] === 'left-to-right' || $s['string-order'] === 'top-to-bottom') {
+            return $s['start-border-margin'] + $s['string-outer-margin'] + i * guitar.endStringGap(i);
+        } else {
+            throw Error('String-order option must be left-to-right, top-to-bottom, right-to-left or bottom-to-top');
+        }
     };
 
     guitar.redraw = function() {
@@ -272,7 +284,6 @@ var Guitar = function (id, settings) {
         var startL = $s['bridge-margin'];
         var startS = guitar.startStringS(i);
 
-        // @TODO: allow to swap strings up-down
         var endL = guitar.long() - $s['space-margin'];
         var endS = guitar.endStringS(i);
 
@@ -617,13 +628,15 @@ var Guitar = function (id, settings) {
         'sign-size': 5,
         'mark-size': 17,
 
-        'orientation': 'vertical',
+        'orientation': 'auto',
         'scale': 'real',
 
         'mark-text': 'M',
 
         'show-notes': 'simple',
         'show-tuning': 'simple',
+
+        'string-order': 'bottom-to-top',
 
         'string-count': 6,
 
