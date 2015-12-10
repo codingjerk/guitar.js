@@ -277,7 +277,7 @@ var Guitar = function (id, settings) {
 
         var text = notes.showNote($s['tuning'][string], $s['show-tuning']);
 
-        tools.drawScaledText(text, l, s, 'middle', $s['tuning-font'], $s['tuning-color'], $s['bridge-margin']);
+        tools.drawScaledText(text, l, s, $s['tuning-font'], $s['tuning-color'], $s['bridge-margin'], 0, 0);
     };
 
     guitar.drawString = function(i) {
@@ -306,11 +306,21 @@ var Guitar = function (id, settings) {
         var fretShort = guitar.fretShortByL(fretL);
         var shortOffset = (guitar.short() - fretShort) / 2;
 
-        var fretS = guitar.short() - shortOffset + $s['fret-number-margin'];
-        var align = 'top';
+        var fretS = 0;
+        var lalign = 0;
+        var salign = 0;
 
-        // @TODO: do something with align (vertical/horizontal), allow to choose fret side (top|bottom|left|right)
-        tools.drawScaledText(f, fretL, fretS, align, $s['fret-number-font'], $s['fret-number-color'], fretLong);
+        if ($s['fret-number-side'] === 'left' || $s['fret-number-side'] === 'top') {
+            fretS = shortOffset - $s['fret-number-margin'];
+            salign = -1;
+        } else if ($s['fret-number-side'] === 'right' || $s['fret-number-side'] === 'bottom') {
+            fretS = guitar.short() - shortOffset + $s['fret-number-margin'];
+            salign = +1;
+        } else {
+            throw Error('Fret-number-side option must be left, right, top or bottom');
+        }
+
+        tools.drawScaledText(f, fretL, fretS, $s['fret-number-font'], $s['fret-number-color'], fretLong, lalign, salign);
     };
 
     guitar.drawSign = function(fret, sign) {
@@ -364,7 +374,7 @@ var Guitar = function (id, settings) {
         }
 
         var textColor = tools.chooseForeground(color);
-        tools.drawScaledText(text, l, s, 'middle', $s['mark-font'], textColor, size);
+        tools.drawScaledText(text, l, s, $s['mark-font'], textColor, size, 0, 0);
     };
 
     guitar.addEventListener = function(event, listener) {
@@ -436,18 +446,28 @@ var Guitar = function (id, settings) {
         $x.closePath();
     };
 
-    tools.drawText = function(text, l, s, valign, font, color) {
-        tools.drawScaledText(text, l, s, valign, font, color, Infinity);
+    tools.aToTa = function(lalign, salign) {
+        var c = guitar.coords(lalign, salign)[0];
+        if (c === -1) return 'right';
+        if (c === 0) return 'center';
+        if (c === +1) return 'left';
     };
 
-    tools.drawScaledText = function(text, l, s, valign, font, color, maxWidth) {
+    tools.aToTb = function(lalign, salign) {
+        var c = guitar.coords(lalign, salign)[1];
+        if (c === -1) return 'bottom';
+        if (c === 0) return 'middle';
+        if (c === +1) return 'top';
+    };
+
+    tools.drawScaledText = function(text, l, s, font, color, maxWidth, lalign, salign) {
         var xy = guitar.coords(l, s);
 
         $x.save();
         $x.font = font;
-        $x.textAlign = 'center';
+        $x.textAlign = tools.aToTa(lalign, salign);
         $x.fillStyle = color;
-        $x.textBaseline = valign;
+        $x.textBaseline = tools.aToTb(lalign, salign);
 
         var metrics = $x.measureText(text);
         var textWidth = metrics.width;
@@ -637,6 +657,7 @@ var Guitar = function (id, settings) {
         'show-tuning': 'simple',
 
         'string-order': 'bottom-to-top',
+        'fret-number-side': 'left',
 
         'string-count': 6,
 
