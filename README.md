@@ -7,7 +7,7 @@ Guitar.js
 
 Guitar.js is a guitar fretboard rendering library.
 
-![Default look](https://raw.githubusercontent.com/chezstov/guitar.js/master/img/default.png)
+![Marks](https://raw.githubusercontent.com/chezstov/guitar.js/master/img/marks.png)
 
 Features
 --------
@@ -19,7 +19,6 @@ Features
 Some example images
 -----------------
 
-![Marks](https://raw.githubusercontent.com/chezstov/guitar.js/master/img/marks.png)
-
+![Default look](https://raw.githubusercontent.com/chezstov/guitar.js/master/img/default.png)
 
 ![Flipped](https://raw.githubusercontent.com/chezstov/guitar.js/master/img/flip.png)
