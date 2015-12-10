@@ -2,7 +2,7 @@ var Guitar = function (id, settings) {
     var guitar = this;
     var tools = {};
     var notes = {};
-    var $s, $x, $c; // Aliases to settings, context and canvas
+    var $s, $x, $c, $e; // Aliases to settings, context and canvas
 
     guitar.create = function() {
         guitar.id = id;
@@ -13,12 +13,16 @@ var Guitar = function (id, settings) {
 
         guitar.container.appendChild(guitar.canvas);
         guitar.context = guitar.canvas.getContext('2d');
+        guitar.events = {};
 
         $s = guitar.settings;
         $x = guitar.context;
         $c = guitar.canvas;
+        $e = guitar.events;
 
         addEventListener('resize', guitar.redraw);
+        $c.addEventListener('click', guitar.onclick);
+        $c.addEventListener('mousemove', guitar.onmove);
     };
 
     guitar.updateSettings = function (settings) {
@@ -138,6 +142,50 @@ var Guitar = function (id, settings) {
         throw Error("string-width must be Number, Array (of Numbers) or Function");
     };
 
+    guitar.getFretByX = function(v) {
+        var nearest = 0;
+        var threshold = Infinity;
+
+        var frets = tools.range($s['start-fret'], $s['end-fret']).concat([0]);
+        for (var i = 0; i < frets.length; ++i) {
+            var fret = frets[i];
+            var fretX = guitar.getInterFretX(fret, 0.55) + $s['bridge-margin'];
+            var t = Math.abs(fretX - v);
+
+            if (t < threshold) {
+                nearest = fret;
+                threshold = t;
+            }
+        }
+
+        return {
+            value: nearest,
+            threshold: threshold,
+        };
+    };
+
+    guitar.getStringByY = function(v) {
+        var nearest = 0;
+        var threshold = Infinity;
+
+        for (var i = 0; i < $s['string-count']; ++i) {
+            var startHeight = $c.height - ($s['start-border-margin'] + $s['string-outer-margin']) * 2;
+            var startOffset = startHeight / ($s['string-count'] - 1);
+            var stringY = $s['start-border-margin'] + $s['string-outer-margin'] + i * startOffset;
+
+            var t = Math.abs(stringY - v);
+            if (t < threshold) {
+                nearest = i;
+                threshold = t;
+            }
+        }
+
+        return {
+            value: nearest,
+            threshold: threshold,
+        };
+    };
+
     guitar.drawBridge = function() {
         var startX = $s['bridge-margin'];
         var startY = $s['start-border-margin'] - $s['bridge-ledge'];
@@ -241,6 +289,46 @@ var Guitar = function (id, settings) {
         tools.drawScaledText(text, x, y, 'middle', $s['mark-font'], textColor, size);
     };
 
+    guitar.addEventListener = function(event, listener) {
+        $e[event] = $e[event] || [];
+        $e[event] += listener;
+    };
+
+    guitar.removeEventListener = function(event, listener) {
+        $e[event] = $e[event] || [];
+        var id = $e[event].indexOf(listener);
+
+        if (id !== -1) {
+            $e[event].splice(id, 1);
+        }
+    };
+
+    guitar.onclick = function(e) {
+        var x = e.offsetX;
+        var y = e.offsetY;
+
+        var fret = guitar.getFretByX(x);
+        var string = guitar.getStringByY(y);
+
+        var clickListeners = $e['click'] || [];
+        for (var i = 0; i < clickListeners.length; ++i) {
+            clickListeners[i](string, fret, e);
+        }
+    };
+
+    guitar.onmove = function(e) {
+        var x = e.offsetX;
+        var y = e.offsetY;
+
+        var fret = guitar.getFretByX(x);
+        var string = guitar.getStringByY(y);
+
+        var moveListeners = $e['move'] || [];
+        for (var i = 0; i < moveListeners.length; ++i) {
+            moveListeners[i](string, fret, e);
+        }
+    };
+
     tools.drawLine = function(fromX, fromY, toX, toY, style, width) {
         $x.beginPath();
 
@@ -316,6 +404,19 @@ var Guitar = function (id, settings) {
             return acc + x;
         });
     };
+
+    tools.range = function(start, end, step) {
+        var range = [];
+
+        typeof step == "undefined" && (step = 1);
+
+        while (step > 0 ? end >= start : end <= start) {
+            range.push(start);
+            start += step;
+        }
+
+        return range;
+    }
 
     tools.rawCoeff = function() {
         if (this.result === undefined) {
