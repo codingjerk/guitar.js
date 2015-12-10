@@ -255,7 +255,7 @@ var Guitar = function (id, settings) {
         } else if ($s['scale'] === 'linear') {
             guitar.fretLs = [];
             for (var n = 0; n < $s['fret-count']; ++n) {
-                guitar.fretLs[n] = guitar.workLong() * (n + 1) / $s['fret-count'];
+                guitar.fretLs[n] = (guitar.workLong() - $['fret-width']) * (n + 1) / $s['fret-count'];
             }
         } else {
             throw Error('Unknown scale option value: ' + $s['scale']);
@@ -266,7 +266,7 @@ var Guitar = function (id, settings) {
 
     guitar.fretCoeff = function() {
         var raw = tools.rawCoeff().slice(0, $s['fret-count']);
-        var mul = guitar.workLong() / tools.sum(raw);
+        var mul = (guitar.workLong() - $['fret-width']) / tools.sum(raw);
 
         var result = [];
         for (var i = 0; i < $s['fret-count']; ++i) {
@@ -372,7 +372,7 @@ var Guitar = function (id, settings) {
 
         var text = notes.showNote($s['tuning'][string], $s['show-tuning']);
 
-        tools.drawScaledText(text, l, s, $s['tuning-font'], $s['tuning-color'], $s['bridge-margin'], 0, 0);
+        tools.drawScaledText(text, l, s, $s['tuning-font'], $s['tuning-color'], guitar.startStringGap(), 0, 0);
     };
 
     guitar.drawString = function(i) {
@@ -716,8 +716,8 @@ var Guitar = function (id, settings) {
         'bridge-margin': 30,
         'start-border-margin': 20,
         'end-border-margin': 20,
-        'string-outer-margin': 3,
-        'space-margin': 5,
+        'string-outer-margin': 20,
+        'space-margin': 10,
         'fret-number-margin': 7,
         'mark-position': 0.55,
 
