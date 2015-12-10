@@ -287,8 +287,9 @@ var Guitar = function (id, settings) {
 
         var size = mark.size || $s['mark-size'];
         var color = mark.color || $s['mark-color'];
+        var border = mark.border || $s['mark-border'];
 
-        tools.drawCircle(x, y, size, color);
+        tools.drawCircle(x, y, size, color, border.size, border.color);
 
         var text = mark.text || $s['mark-text'];
         if (!mark.text) {
@@ -365,11 +366,14 @@ var Guitar = function (id, settings) {
         $x.closePath();
     };
 
-    tools.drawCircle = function(centerX, centerY, radius, color) {
+    tools.drawCircle = function(centerX, centerY, radius, color, lineSize, lineColor) {
         $x.beginPath();
+        $x.lineWidth = lineSize;
+        $x.strokeStyle = lineColor;
         $x.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
         $x.fillStyle = color;
         $x.fill();
+        lineSize && lineColor && $x.stroke();
         $x.closePath();
     };
 
@@ -522,6 +526,10 @@ var Guitar = function (id, settings) {
         'space-margin': 5,
         'fret-number-margin': 7,
         'mark-position': 0.65,
+
+        'mark-border': {
+            size: 0, color: '#000',
+        },
 
         'string-color': '#000',
         'bridge-color': '#999',
