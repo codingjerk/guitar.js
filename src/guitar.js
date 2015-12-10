@@ -33,7 +33,82 @@ var Guitar = function (id, settings) {
         }
 
         $s['fret-count'] = $s['end-fret'] - $s['start-fret'] + 1;
+
+        guitar.frets = tools.range($s['start-fret'], $s['end-fret']);
+        guitar.frets0 = [0].concat(guitar.frets);
+        guitar.strings = tools.range(0, $s['string-count'] - 1);
+
+        if ($s['orientation'] === 'vertical') {
+            guitar.long = guitar.height;
+            guitar.short = guitar.width;
+
+            guitar.coords = function(l, s) {
+                return [s, l];
+            };
+        } else if ($s['orientation'] === 'horizontal') {
+            guitar.long = guitar.width;
+            guitar.short = guitar.height;
+
+            guitar.coords = function(l, s) {
+                return [l, s];
+            };
+        } else if ($s['orientation'] === 'auto') {
+            guitar.long = function() {
+                return tools.max([$c.width, $c.height]);
+            };
+
+            guitar.short = function() {
+                return tools.min([$c.width, $c.height]);
+            };
+
+            guitar.coords = function(l, s) {
+                if ($c.width >= $c.height) {
+                    return [l, s];
+                } else {
+                    return [s, l];
+                }
+            };
+        } else {
+            throw Error('Option orientation must be vertical, horizontal or auto');
+        }
+
         guitar.redraw();
+    };
+
+    guitar.width = function () {
+        return $c.width;
+    };
+
+    guitar.height = function () {
+        return $c.height;
+    };
+
+    guitar.workLong = function() {
+        return guitar.long() - $s['bridge-margin'] - $s['space-margin'];
+    };
+
+    guitar.startShort = function() {
+        return guitar.short() - ($s['start-border-margin'] + $s['string-outer-margin']) * 2;
+    };
+
+    guitar.endShort = function() {
+        return guitar.short() - ($s['end-border-margin'] + $s['string-outer-margin']) * 2;
+    };
+
+    guitar.startStringGap = function() {
+        return guitar.startShort() / ($s['string-count'] - 1);
+    };
+
+    guitar.endStringGap = function() {
+        return guitar.endShort() / ($s['string-count'] - 1);
+    };
+
+    guitar.startStringS = function(i) {
+        return $s['start-border-margin'] + $s['string-outer-margin'] + i * guitar.startStringGap(i);
+    };
+
+    guitar.endStringS = function(i) {
+        return $s['start-border-margin'] + $s['string-outer-margin'] + i * guitar.endStringGap(i);
     };
 
     guitar.redraw = function() {
@@ -42,25 +117,18 @@ var Guitar = function (id, settings) {
 
         guitar.rebuildFrets();
 
-        var width = $c.width;
-        var height = $c.height;
-        $x.clearRect(0, 0, width, height);
+        $x.clearRect(0, 0, $c.width, $c.height);
 
-        for (var f = $s['start-fret']; f <= $s['end-fret']; ++f) {
-            var sign = $s['fret-signs'][f];
-            if (sign !== undefined) {
-                guitar.drawSign(f, sign);
-            }
+        guitar.frets.forEach(function(fret) {
+            var sign = $s['fret-signs'][fret];
+            sign && guitar.drawSign(fret, sign);
+        });
 
-            guitar.drawFret(f);
-            guitar.drawFretNumber(f);
-        }
+        guitar.frets.forEach(guitar.drawFret);
+        guitar.frets.forEach(guitar.drawFretNumber);
 
-        for (var i = 0; i < $s['string-count']; ++i) {
-            guitar.drawString(i);
-
-            $s['show-tuning'] && guitar.drawTuning(i);
-        }
+        guitar.strings.forEach(guitar.drawString);
+        $s['show-tuning'] && guitar.strings.forEach(guitar.drawTuning);
 
         guitar.drawBridge();
 
@@ -68,32 +136,30 @@ var Guitar = function (id, settings) {
     };
 
     guitar.rebuildFrets = function() {
-        if (this.oldWidth === $c.width) return;
+        if (this.oldLong === guitar.long()) return;
 
         if ($s['scale'] === 'real') {
-            var coeff = guitar.getFretCoeff();
-            guitar.fretXs = [0];
+            var coeff = guitar.fretCoeff();
+            guitar.fretLs = [0];
             for (var n = 0; n < $s['fret-count']; ++n) {
-                guitar.fretXs[n] += coeff[n];
-                guitar.fretXs[n + 1] = guitar.fretXs[n];
+                guitar.fretLs[n] += coeff[n];
+                guitar.fretLs[n + 1] = guitar.fretLs[n];
             }
         } else if ($s['scale'] === 'linear') {
-            var realWidth = $c.width - $s['bridge-margin'] * 2;
-            guitar.fretXs = [];
+            guitar.fretLs = [];
             for (var n = 0; n < $s['fret-count']; ++n) {
-                guitar.fretXs[n] = realWidth * (n + 1) / $s['fret-count'];
+                guitar.fretLs[n] = guitar.workLong() * (n + 1) / $s['fret-count'];
             }
         } else {
             throw Error('Unknown scale option value: ' + $s['scale']);
         }
 
-        this.oldWidth = $c.width;
+        this.oldLong = guitar.long();
     };
 
-    guitar.getFretCoeff = function() {
+    guitar.fretCoeff = function() {
         var raw = tools.rawCoeff().slice(0, $s['fret-count']);
-        var realWidth = $c.width - $s['bridge-margin'] * 2;
-        var mul = realWidth / tools.sum(raw);
+        var mul = guitar.workLong() / tools.sum(raw);
 
         var result = [];
         for (var i = 0; i < $s['fret-count']; ++i) {
@@ -103,34 +169,31 @@ var Guitar = function (id, settings) {
         return result;
     };
 
-    guitar.getFretX = function(fret) {
+    guitar.fretL = function(fret) {
         if (fret === 0) return 0;
-        return guitar.fretXs[fret - $s['start-fret']];
+        return guitar.fretLs[fret - $s['start-fret']];
     };
 
-    guitar.getInterFretX = function(fret, coeff) {
+    guitar.interFretL = function(fret, coeff) {
         coeff = coeff === undefined? 0.5: coeff;
 
-        var fretPrev = guitar.getFretX(fret - 1) || 0;
-        var fretNext = guitar.getFretX(fret);
+        var fretPrev = guitar.fretL(fret - 1) || 0;
+        var fretNext = guitar.fretL(fret);
 
         return (fretPrev * (1 - coeff) + fretNext * coeff);
     };
 
-    guitar.getFretHeightByX = function(x) {
-        var startHeight = $c.height - ($s['start-border-margin'] + $s['string-outer-margin']) * 2;
-        var endHeight = $c.height - ($s['end-border-margin'] + $s['string-outer-margin']) * 2;
-        var realWidth = $c.width - $s['bridge-margin'] * 2;
-
-        return startHeight + (endHeight - startHeight) * (x / realWidth);
+    guitar.fretShortByL = function(x) {
+        var c = x / guitar.workLong();
+        return guitar.startShort() * (1 - c) + guitar.endShort() * c;
     };
 
-    guitar.getFretHeight = function(fret) {
-        var fretX = guitar.getFretX(fret);
-        return guitar.getFretHeightByX(fretX);
+    guitar.fretShort = function(fret) {
+        var fretL = guitar.fretL(fret);
+        return guitar.fretShortByL(fretL);
     };
 
-    guitar.getStringWidth = function(i) {
+    guitar.stringWidth = function(i) {
         var s = $s['string-width'];
 
         if (s instanceof Number) {
@@ -141,17 +204,17 @@ var Guitar = function (id, settings) {
             return s(i);
         }
 
-        throw Error("string-width must be Number, Array (of Numbers) or Function");
+        throw Error('string-width must be Number, Array (of Numbers) or Function');
     };
 
-    guitar.getFretByX = function(v) {
+    guitar.fretByL = function(v) {
         var nearest = 0;
         var threshold = Infinity;
 
         var frets = tools.range($s['start-fret'], $s['end-fret']).concat([0]);
         for (var i = 0; i < frets.length; ++i) {
             var fret = frets[i];
-            var fretX = guitar.getInterFretX(fret, 0.55) + $s['bridge-margin'];
+            var fretX = guitar.interFretL(fret, 0.55) + $s['bridge-margin'];
             var t = Math.abs(fretX - v);
 
             if (t < threshold) {
@@ -166,16 +229,14 @@ var Guitar = function (id, settings) {
         };
     };
 
-    guitar.getStringByY = function(v) {
+    guitar.stringByS = function(v) {
         var nearest = 0;
         var threshold = Infinity;
 
         for (var i = 0; i < $s['string-count']; ++i) {
-            var startHeight = $c.height - ($s['start-border-margin'] + $s['string-outer-margin']) * 2;
-            var startOffset = startHeight / ($s['string-count'] - 1);
-            var stringY = $s['start-border-margin'] + $s['string-outer-margin'] + i * startOffset;
+            var stringS = guitar.startStringS(i);
 
-            var t = Math.abs(stringY - v);
+            var t = Math.abs(stringS - v);
             if (t < threshold) {
                 nearest = i;
                 threshold = t;
@@ -189,101 +250,88 @@ var Guitar = function (id, settings) {
     };
 
     guitar.drawBridge = function() {
-        var startX = $s['bridge-margin'];
-        var startY = $s['start-border-margin'] - $s['bridge-ledge'];
+        var startL = $s['bridge-margin'];
+        var startS = $s['start-border-margin'];
 
-        var endX = $s['bridge-margin'];
-        var endY = $c.height - $s['start-border-margin'] + $s['bridge-ledge'];
+        var endL = $s['bridge-margin'];
+        var endS = guitar.short() - $s['start-border-margin'];
 
-        tools.drawLine(startX, startY, endX, endY, $s['bridge-color'], $s['bridge-width']);
+        tools.drawLine(startL, startS, endL, endS, $s['bridge-color'], $s['bridge-width']);
     };
 
-    guitar.drawTuning = function(s) {
-        var startHeight = $c.height - ($s['start-border-margin'] + $s['string-outer-margin']) * 2;
-        var startOffset = startHeight / ($s['string-count'] - 1);
-        var x = $s['bridge-margin'] / 2;
-        var y = $s['start-border-margin'] + $s['string-outer-margin'] + s * startOffset;
+    guitar.drawTuning = function(string) {
+        var l = $s['bridge-margin'] / 2;
+        var s = guitar.startStringS(string);
 
-        var text = notes.showNote($s['tuning'][s]);
-        if ($s['show-tuning'] === 'simple') {
-            text = text.slice(0, text.length - 1);
-        } else if ($s['show-tuning'] === 'full') {
-            // pass
-        } else {
-            throw Error("Unknown show-tuning value");
-        }
+        var text = notes.showNote($s['tuning'][string], $s['show-tuning']);
 
-        tools.drawScaledText(text, x, y, 'middle', $s['tuning-font'], $s['tuning-color'], $s['bridge-margin']);
+        tools.drawScaledText(text, l, s, 'middle', $s['tuning-font'], $s['tuning-color'], $s['bridge-margin']);
     };
 
     guitar.drawString = function(i) {
-        var startHeight = $c.height - ($s['start-border-margin'] + $s['string-outer-margin']) * 2;
-        var startOffset = startHeight / ($s['string-count'] - 1);
-        var startX = $s['bridge-margin'];
-        var startY = $s['start-border-margin'] + $s['string-outer-margin'] + i * startOffset;
+        var startL = $s['bridge-margin'];
+        var startS = guitar.startStringS(i);
 
-        var endHeight = $c.height - ($s['end-border-margin'] + $s['string-outer-margin']) * 2;
-        var endOffset = endHeight / ($s['string-count'] - 1);
-        var endX = $c.width - $s['space-margin'];
-        var endY = $s['end-border-margin'] + $s['string-outer-margin'] + i * endOffset;
+        // @TODO: allow to swap strings up-down
+        var endL = guitar.long() - $s['space-margin'];
+        var endS = guitar.endStringS(i);
 
-        tools.drawLine(startX, startY, endX, endY, $s['string-color'], guitar.getStringWidth(i));
+        tools.drawLine(startL, startS, endL, endS, $s['string-color'], guitar.stringWidth(i));
     };
 
     guitar.drawFret = function(i) {
-        var fretX = guitar.getFretX(i);
-        var fretHeight = guitar.getFretHeight(i);
-        var verticalOffset = ($c.height - fretHeight) / 2;
+        var startL = guitar.fretL(i) + $s['bridge-margin'];
+        var startS = (guitar.short() - guitar.fretShort(i)) / 2;
 
-        var startX = fretX + $s['bridge-margin'];
-        var startY = verticalOffset;
+        var endL = startL;
+        var endS = guitar.short() - startS;
 
-        var endX = startX;
-        var endY = $c.height - verticalOffset;
-
-        tools.drawLine(startX, startY, endX, endY, $s['fret-color'], $s['fret-width']);
+        tools.drawLine(startL, startS, endL, endS, $s['fret-color'], $s['fret-width']);
     };
 
     guitar.drawFretNumber = function(f) {
-        var fretX = guitar.getInterFretX(f) + $s['bridge-margin'];
-        var fretWidth = guitar.getFretX(f) - guitar.getFretX(f - 1);
-        var fretHeight = guitar.getFretHeightByX(fretX);
-        var verticalOffset = ($c.height - fretHeight) / 2;
+        var fretL = guitar.interFretL(f) + $s['bridge-margin'];
+        var fretLong = guitar.fretL(f) - guitar.fretL(f - 1);
+        var fretShort = guitar.fretShortByL(fretL);
+        var shortOffset = (guitar.short() - fretShort) / 2;
 
-        tools.drawScaledText(f, fretX, $c.height - verticalOffset + $s['fret-number-margin'], 'top', $s['fret-number-font'], $s['fret-number-color'], fretWidth);
+        var fretS = guitar.short() - shortOffset + $s['fret-number-margin'];
+        var align = 'top';
+
+        // @TODO: do something with align (vertical/horizontal), allow to choose fret side (top|bottom|left|right)
+        tools.drawScaledText(f, fretL, fretS, align, $s['fret-number-font'], $s['fret-number-color'], fretLong);
     };
 
     guitar.drawSign = function(fret, sign) {
-        var centerX = guitar.getInterFretX(fret) + $s['bridge-margin'];
-        var centerY = $c.height / 2;
+        var l = guitar.interFretL(fret) + $s['bridge-margin'];
+        var s = guitar.short() / 2;
 
-        var fretHeight = guitar.getFretHeightByX(centerX);
-        var doubleOffset = fretHeight / 4;
+        var lDoubleOffset = guitar.fretShortByL(l) / 4;
 
         var radius = $s['sign-size'];
 
         if (sign === 'dot') {
-            tools.drawCircle(centerX, centerY, radius, $s['sign-color']);
+            tools.drawCircle(l, s, radius, $s['sign-color']);
         } else if (sign === 'star') {
-            tools.drawStar(centerX, centerY, radius, 5, $s['sign-color']);
+            tools.drawStar(l, s, radius, 5, $s['sign-color']);
         } else if (sign === 'double-dot') {
-            tools.drawCircle(centerX, centerY - doubleOffset, radius, $s['sign-color']);
-            tools.drawCircle(centerX, centerY + doubleOffset, radius, $s['sign-color']);
+            tools.drawCircle(l, s - lDoubleOffset, radius, $s['sign-color']);
+            tools.drawCircle(l, s + lDoubleOffset, radius, $s['sign-color']);
         } else if (sign === 'double-star') {
-            tools.drawStar(centerX, centerY - doubleOffset, radius, 5, $s['sign-color']);
-            tools.drawStar(centerX, centerY + doubleOffset, radius, 5, $s['sign-color']);
+            tools.drawStar(l, s - lDoubleOffset, radius, 5, $s['sign-color']);
+            tools.drawStar(l, s + lDoubleOffset, radius, 5, $s['sign-color']);
         } else {
-            throw Error("Unknown sign type: " + sign);
+            throw Error('Unknown sign type: ' + sign);
         }
     };
 
     guitar.drawMark = function(mark) {
-        var fretX = guitar.getInterFretX(mark.fret, $s['mark-position']);
-        var height = guitar.getFretHeightByX(fretX);
-        var yOffset = ($c.height - height) / 2;
+        var fretL = guitar.interFretL(mark.fret, $s['mark-position']);
+        var short = guitar.fretShortByL(fretL);
+        var sOffset = (guitar.short() - short) / 2;
 
-        var x = fretX + $s['bridge-margin'];
-        var y = yOffset + height * mark.string / ($s['string-count'] - 1);
+        var l = fretL + $s['bridge-margin'];
+        var s = sOffset + short * mark.string / ($s['string-count'] - 1);
 
         var size = mark.size || $s['mark-size'];
         var color = mark.color || $s['mark-color'];
@@ -294,26 +342,18 @@ var Guitar = function (id, settings) {
             color = mark.color = color[random];
         }
 
-        tools.drawCircle(x, y, size, color, border.size, border.color);
+        tools.drawCircle(l, s, size, color, border.size, border.color);
 
         var text = mark.text || $s['mark-text'];
         if (!mark.text) {
             var stringNote = $s['tuning'][mark.string];
             var fretNote = stringNote + mark.fret;
 
-            var note = notes.showNote(fretNote);
-
-            if ($s['show-notes'] === 'simple') {
-                text = note.slice(0, note.length - 1);
-            } else if ($s['show-notes'] === 'full') {
-                text = note;
-            } else {
-                throw Error("Unknown show-notes value");
-            }
+            text = notes.showNote(fretNote, $s['show-notes']);
         }
 
         var textColor = tools.chooseForeground(color);
-        tools.drawScaledText(text, x, y, 'middle', $s['mark-font'], textColor, size);
+        tools.drawScaledText(text, l, s, 'middle', $s['mark-font'], textColor, size);
     };
 
     guitar.addEventListener = function(event, listener) {
@@ -331,11 +371,10 @@ var Guitar = function (id, settings) {
     };
 
     guitar.onclick = function(e) {
-        var x = e.offsetX;
-        var y = e.offsetY;
+        var ls = guitar.coords(e.offsetX, e.offsetY);
 
-        var fret = guitar.getFretByX(x);
-        var string = guitar.getStringByY(y);
+        var fret = guitar.fretByL(ls[0]);
+        var string = guitar.stringByS(ls[1]);
 
         var clickListeners = $e['click'] || [];
         for (var i = 0; i < clickListeners.length; ++i) {
@@ -344,11 +383,10 @@ var Guitar = function (id, settings) {
     };
 
     guitar.onmove = function(e) {
-        var x = e.offsetX;
-        var y = e.offsetY;
+        var ls = guitar.coords(e.offsetX, e.offsetY);
 
-        var fret = guitar.getFretByX(x);
-        var string = guitar.getStringByY(y);
+        var fret = guitar.fretByL(ls[0]);
+        var string = guitar.stringByS(ls[1]);
 
         var moveListeners = $e['move'] || [];
         for (var i = 0; i < moveListeners.length; ++i) {
@@ -356,7 +394,10 @@ var Guitar = function (id, settings) {
         }
     };
 
-    tools.drawLine = function(fromX, fromY, toX, toY, style, width) {
+    tools.drawLine = function(fromL, fromS, toL, toS, style, width) {
+        var from = guitar.coords(fromL, fromS);
+        var to = guitar.coords(toL, toS);
+
         $x.beginPath();
 
         $x.lineWidth = width;
@@ -364,33 +405,33 @@ var Guitar = function (id, settings) {
 
         var padding = width % 2 === 0? 0: 0.5;
 
-        $x.moveTo(Math.round(fromX) + padding, Math.round(fromY) + padding);
-        $x.lineTo(Math.round(toX) + padding, Math.round(toY) + padding);
+        $x.moveTo(Math.round(from[0]) + padding, Math.round(from[1]) + padding);
+        $x.lineTo(Math.round(to[0]) + padding, Math.round(to[1]) + padding);
 
         $x.stroke();
         $x.closePath();
     };
 
-    tools.drawCircle = function(centerX, centerY, radius, color, lineSize, lineColor) {
+    tools.drawCircle = function(l, s, radius, color, lineSize, lineColor) {
+        var xy = guitar.coords(l, s);
+
         $x.beginPath();
         $x.lineWidth = lineSize;
         $x.strokeStyle = lineColor;
-        $x.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+        $x.arc(xy[0], xy[1], radius, 0, 2 * Math.PI, false);
         $x.fillStyle = color;
         $x.fill();
         lineSize && lineColor && $x.stroke();
         $x.closePath();
     };
 
-    tools.drawText = function(text, x, y, valign, font, color) {
-        $x.font = font;
-        $x.textAlign = 'center';
-        $x.fillStyle = color;
-        $x.textBaseline = valign;
-        $x.fillText(text, x, y);
+    tools.drawText = function(text, l, s, valign, font, color) {
+        tools.drawScaledText(text, l, s, valign, font, color, Infinity);
     };
 
-    tools.drawScaledText = function(text, x, y, valign, font, color, maxWidth) {
+    tools.drawScaledText = function(text, l, s, valign, font, color, maxWidth) {
+        var xy = guitar.coords(l, s);
+
         $x.save();
         $x.font = font;
         $x.textAlign = 'center';
@@ -406,14 +447,16 @@ var Guitar = function (id, settings) {
             $x.scale(scaleFactor, scaleFactor);
         }
 
-        $x.fillText(text, x / scaleFactor, y / scaleFactor);
+        $x.fillText(text, xy[0] / scaleFactor, xy[1] / scaleFactor);
         $x.restore();
     };
 
-    tools.drawStar = function(x, y, radius, pikes, color) {
+    tools.drawStar = function(l, s, radius, pikes, color) {
+        var xy = guitar.coords(l, s);
+
         $x.save();
         $x.beginPath();
-        $x.translate(x, y);
+        $x.translate(xy[0], xy[1]);
         $x.fillStyle = color;
         $x.moveTo(0, 0 - radius);
 
@@ -441,10 +484,16 @@ var Guitar = function (id, settings) {
         });
     };
 
+    tools.min = function(list) {
+        return list.reduce(function(acc, x) {
+            return acc < x? acc: x;
+        });
+    };
+
     tools.range = function(start, end, step) {
         var range = [];
 
-        typeof step == "undefined" && (step = 1);
+        typeof step === 'undefined' && (step = 1);
 
         while (step > 0 ? end >= start : end <= start) {
             range.push(start);
@@ -521,12 +570,21 @@ var Guitar = function (id, settings) {
         return absoluteValue;
     };
 
-    notes.showNote = function(index) {
+    notes.showNote = function(index, mode) {
         var note = index % 12;
         var octave = (index - note) / 12;
 
         var result = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][note] + octave;
-        return result;
+
+        if (mode === 'simple') {
+            return result.slice(0, result.length - 1);
+        }
+
+        if (mode === 'full') {
+            return result;
+        }
+
+        throw Error('Unknown show note mode');
     };
 
     guitar.settings = {
@@ -559,9 +617,7 @@ var Guitar = function (id, settings) {
         'sign-size': 5,
         'mark-size': 17,
 
-        'bridge-ledge': 0,
-
-        'orientation': 'horizontal',
+        'orientation': 'vertical',
         'scale': 'real',
 
         'mark-text': 'M',
