@@ -13,13 +13,3 @@ Features
 * Fully customizable
 * No dependencies
 * Fine default look
-
-Plans
------
-* Write tests
-* Connect with trevis and coveralls
-* Start writing docs, connect
-* Write usage
-* Add screenshots
-* Upload to bower
-* Connect gratipay
