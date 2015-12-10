@@ -246,10 +246,11 @@ var Guitar = function (id, settings) {
 
     guitar.drawFretNumber = function(f) {
         var fretX = guitar.getInterFretX(f) + $s['bridge-margin'];
+        var fretWidth = guitar.getFretX(f) - guitar.getFretX(f - 1);
         var fretHeight = guitar.getFretHeightByX(fretX);
         var verticalOffset = ($c.height - fretHeight) / 2;
 
-        tools.drawText(f, fretX, $c.height - verticalOffset + $s['fret-number-margin'], 'top', $s['fret-number-font'], $s['fret-number-color']);
+        tools.drawScaledText(f, fretX, $c.height - verticalOffset + $s['fret-number-margin'], 'top', $s['fret-number-font'], $s['fret-number-color'], fretWidth);
     };
 
     guitar.drawSign = function(fret, sign) {
