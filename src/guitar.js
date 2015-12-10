@@ -58,6 +58,8 @@ var Guitar = function (id, settings) {
 
         for (var i = 0; i < $s['string-count']; ++i) {
             guitar.drawString(i);
+
+            $s['show-tuning'] && guitar.drawTuning(i);
         }
 
         guitar.drawBridge();
@@ -194,6 +196,24 @@ var Guitar = function (id, settings) {
         var endY = $c.height - $s['start-border-margin'] + $s['bridge-ledge'];
 
         tools.drawLine(startX, startY, endX, endY, $s['bridge-color'], $s['bridge-width']);
+    };
+
+    guitar.drawTuning = function(s) {
+        var startHeight = $c.height - ($s['start-border-margin'] + $s['string-outer-margin']) * 2;
+        var startOffset = startHeight / ($s['string-count'] - 1);
+        var x = $s['bridge-margin'] / 2;
+        var y = $s['start-border-margin'] + $s['string-outer-margin'] + s * startOffset;
+
+        var text = notes.showNote($s['tuning'][s]);
+        if ($s['show-tuning'] === 'simple') {
+            text = text.slice(0, text.length - 1);
+        } else if ($s['show-tuning'] === 'full') {
+            // pass
+        } else {
+            throw Error("Unknown show-tuning value");
+        }
+
+        tools.drawScaledText(text, x, y, 'middle', $s['tuning-font'], $s['tuning-color'], $s['bridge-margin']);
     };
 
     guitar.drawString = function(i) {
@@ -494,7 +514,7 @@ var Guitar = function (id, settings) {
     };
 
     guitar.settings = {
-        'bridge-margin': 12,
+        'bridge-margin': 30,
         'start-border-margin': 20,
         'end-border-margin': 20,
         'string-outer-margin': 3,
@@ -508,12 +528,14 @@ var Guitar = function (id, settings) {
         'sign-color': '#bbb',
         'fret-number-color': '#bbb',
         'mark-color': '#6b7',
+        'tuning-color': '#333',
 
         'string-width': [1, 1, 2, 2, 3, 4],
         'bridge-width': 8,
         'fret-width': 4,
         'fret-number-font': '12px sans-serif',
         'mark-font': '12px sans-serif',
+        'tuning-font': '12px sans-serif',
         'sign-size': 5,
         'mark-size': 10,
 
@@ -523,7 +545,9 @@ var Guitar = function (id, settings) {
         'scale': 'real',
 
         'mark-text': 'M',
+
         'show-notes': 'simple',
+        'show-tuning': 'simple',
 
         'string-count': 6,
 
@@ -545,38 +569,7 @@ var Guitar = function (id, settings) {
             24: 'double-star',
         },
 
-        'marks': [
-            {
-                string: 0,
-                fret: 0,
-                color: '#e9e',
-                text: 'E',
-            },
-            {
-                string: 1,
-                fret: 1,
-                size: 20,
-            },
-            {
-                string: 2,
-                fret: 2,
-                color: '#9ee',
-            },
-            {
-                string: 3,
-                fret: 3,
-            },
-            {
-                string: 4,
-                fret: 4,
-                size: 15,
-                color: '#456',
-            },
-            {
-                string: 5,
-                fret: 5,
-            },
-        ],
+        'marks': [],
     };
 
     guitar.create();
