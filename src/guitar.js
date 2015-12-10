@@ -151,6 +151,22 @@ var Guitar = function (id, settings) {
         return guitar.findMark(string, fret) !== -1;
     };
 
+    guitar.tune = function(tune) {
+        if (tune instanceof String) {
+            tune = tune.toLowerCase();
+        }
+
+        var tunes = {
+            'eadgbe': ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'],
+            'default': ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'],
+            'drop-d': ['D2', 'A2', 'D3', 'G3', 'B3', 'E4'],
+        };
+
+        tunes[tune] && (tune = tunes[tune]);
+
+        guitar.set('tuning', tune.map(notes.parseNote));
+    };
+
     guitar.width = function () {
         return $c.width;
     };
@@ -191,9 +207,9 @@ var Guitar = function (id, settings) {
 
     guitar.endStringS = function(i) {
         if ($s['string-order'] === 'right-to-left' || $s['string-order'] === 'bottom-to-top') {
-            return $s['start-border-margin'] + $s['string-outer-margin'] + ($s['string-count'] - i - 1) * guitar.endStringGap(i);
+            return $s['end-border-margin'] + $s['string-outer-margin'] + ($s['string-count'] - i - 1) * guitar.endStringGap(i);
         } else if ($s['string-order'] === 'left-to-right' || $s['string-order'] === 'top-to-bottom') {
-            return $s['start-border-margin'] + $s['string-outer-margin'] + i * guitar.endStringGap(i);
+            return $s['end-border-margin'] + $s['string-outer-margin'] + i * guitar.endStringGap(i);
         } else {
             throw Error('String-order option must be left-to-right, top-to-bottom, right-to-left or bottom-to-top');
         }
@@ -303,7 +319,7 @@ var Guitar = function (id, settings) {
     guitar.stringWidth = function(i) {
         var s = $s['string-width'];
 
-        if (s instanceof Number) {
+        if (typeof s === 'number') {
             return s;
         } else if (s instanceof Array) {
             return s[i];
@@ -370,7 +386,7 @@ var Guitar = function (id, settings) {
         var l = $s['bridge-margin'] / 2;
         var s = guitar.startStringS(string);
 
-        var text = notes.showNote($s['tuning'][string], $s['show-tuning']);
+        var text = notes.showNote($s['tuning'][$s['string-count'] - 1 - string], $s['show-tuning']);
 
         tools.drawScaledText(text, l, s, $s['tuning-font'], $s['tuning-color'], guitar.startStringGap(), 0, 0);
     };
@@ -461,7 +477,7 @@ var Guitar = function (id, settings) {
 
         var text = mark.text || $s['mark-text'];
         if (!mark.text) {
-            var stringNote = $s['tuning'][mark.string];
+            var stringNote = $s['tuning'][$s['string-count'] - 1 - mark.string];
             var fretNote = stringNote + mark.fret;
 
             text = notes.showNote(fretNote, $s['show-notes']);
@@ -714,91 +730,66 @@ var Guitar = function (id, settings) {
 
     guitar.settings = {
         'bridge-margin': 30,
-        'start-border-margin': 20,
-        'end-border-margin': 20,
-        'string-outer-margin': 20,
-        'space-margin': 10,
-        'fret-number-margin': 7,
+        'start-border-margin': 15,
+        'end-border-margin': 15,
+        'string-outer-margin': 5,
+        'space-margin': 5,
+        'fret-number-margin': 3,
         'mark-position': 0.55,
 
         'mark-border': {
             size: 2, color: '#666',
         },
 
-        'string-color': '#000',
-        'bridge-color': '#999',
+        'string-color': '#333',
+        'bridge-color': '#777',
         'fret-color': '#bbb',
-        'sign-color': '#bbb',
-        'fret-number-color': '#bbb',
+        'sign-color': '#ccc',
+        'fret-number-color': '#aaa',
         'mark-color': '#fefefe',
-        'tuning-color': '#333',
+        'tuning-color': '#222',
 
-        'string-width': [1, 1, 2, 2, 3, 4],
-        'bridge-width': 8,
-        'fret-width': 4,
+        'string-width': 1,
+        'bridge-width': 6,
+        'fret-width': 3,
         'fret-number-font': '12px sans-serif',
         'mark-font': '12px sans-serif',
-        'tuning-font': '12px sans-serif',
-        'sign-size': 5,
-        'mark-size': 17,
+        'tuning-font': '15px sans-serif',
+        'sign-size': 6,
+        'mark-size': 13,
 
-        'orientation': 'auto',
+        'orientation': 'horizontal',
         'scale': 'real',
 
-        'mark-text': 'M',
+        'mark-text': '',
 
         'show-notes': 'simple',
         'show-tuning': 'simple',
 
-        'string-order': 'bottom-to-top',
-        'fret-number-side': 'left',
+        'string-order': 'top-to-bottom',
+        'fret-number-side': 'bottom',
 
         'string-count': 6,
 
         'start-fret': 1,
-        'end-fret': 24,
+        'end-fret': 12,
 
         'tuning': ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'].map(notes.parseNote),
 
         'fret-signs': {
-            3: 'star',
-            5: 'star',
-            7: 'double-star',
-            9: 'star',
-            12: 'double-star',
-            15: 'star',
-            17: 'star',
-            19: 'star',
-            21: 'star',
-            24: 'double-star',
+            3: 'dot',
+            5: 'dot',
+            7: 'double-dot',
+            9: 'dot',
+            12: 'double-dot',
+            15: 'dot',
+            17: 'dot',
+            19: 'dot',
+            21: 'dot',
+            24: 'double-dot',
         },
 
-        'marks': [
-            {
-                fret: 0,
-                string: 0,
-            },
-            {
-                fret: 2,
-                string: 4,
-            },
-            {
-                fret: 5,
-                string: 2,
-            },
-            {
-                fret: 12,
-                string: 1,
-            },
-            {
-                fret: 3,
-                string: 3,
-            },
-            {
-                fret: 6,
-                string: 5,
-            },
-        ],
+        'marks': [],
     };
 
     guitar.create();
