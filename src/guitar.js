@@ -289,6 +289,11 @@ var Guitar = function (id, settings) {
         var color = mark.color || $s['mark-color'];
         var border = mark.border || $s['mark-border'];
 
+        if (color instanceof Array) {
+            var random = Math.floor(Math.random() * color.length);
+            color = mark.color = color[random];
+        }
+
         tools.drawCircle(x, y, size, color, border.size, border.color);
 
         var text = mark.text || $s['mark-text'];
@@ -430,6 +435,12 @@ var Guitar = function (id, settings) {
         });
     };
 
+    tools.max = function(list) {
+        return list.reduce(function(acc, x) {
+            return acc > x? acc: x;
+        });
+    };
+
     tools.range = function(start, end, step) {
         var range = [];
 
@@ -480,10 +491,10 @@ var Guitar = function (id, settings) {
 
     tools.chooseForeground = function(backgroud) {
         var rgb = tools.parseColor(backgroud);
-        var sum = tools.sum(rgb);
-        var limit = 127 * 3;
+        var max = tools.max(rgb);
+        var limit = 127;
 
-        if (sum >= limit) {
+        if (max >= limit) {
             return '#333';
         } else {
             return '#fafafa';
@@ -525,10 +536,10 @@ var Guitar = function (id, settings) {
         'string-outer-margin': 3,
         'space-margin': 5,
         'fret-number-margin': 7,
-        'mark-position': 0.65,
+        'mark-position': 1.0,
 
         'mark-border': {
-            size: 0, color: '#000',
+            size: 2, color: '#666',
         },
 
         'string-color': '#000',
@@ -536,7 +547,7 @@ var Guitar = function (id, settings) {
         'fret-color': '#bbb',
         'sign-color': '#bbb',
         'fret-number-color': '#bbb',
-        'mark-color': '#6b7',
+        'mark-color': '#fefefe',
         'tuning-color': '#333',
 
         'string-width': [1, 1, 2, 2, 3, 4],
@@ -546,7 +557,7 @@ var Guitar = function (id, settings) {
         'mark-font': '12px sans-serif',
         'tuning-font': '12px sans-serif',
         'sign-size': 5,
-        'mark-size': 10,
+        'mark-size': 17,
 
         'bridge-ledge': 0,
 
@@ -578,7 +589,32 @@ var Guitar = function (id, settings) {
             24: 'double-star',
         },
 
-        'marks': [],
+        'marks': [
+            {
+                fret: 0,
+                string: 0,
+            },
+            {
+                fret: 2,
+                string: 4,
+            },
+            {
+                fret: 5,
+                string: 2,
+            },
+            {
+                fret: 12,
+                string: 1,
+            },
+            {
+                fret: 3,
+                string: 3,
+            },
+            {
+                fret: 6,
+                string: 5,
+            },
+        ],
     };
 
     guitar.create();
