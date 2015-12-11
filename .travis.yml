@@ -1,0 +1,7 @@
+language: js
+
+before_script:
+  - npm install -g uglify
+  - mkdir build
+
+script: uglify -s src/guitar.js -o build/guitar.min.js
