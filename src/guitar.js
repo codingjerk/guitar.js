@@ -59,7 +59,7 @@ var Guitar = function (id, settings) {
 
     guitar.set = function(obj) {
         if (arguments.length === 2) {
-            return guitar.setOne.apply(arguments);
+            return guitar.setOne.apply(this, arguments);
         }
 
         return guitar.setMultiple(obj);
