@@ -53,4 +53,31 @@ describe('tools', function() {
             guitar.tools.min([1, 2, 3]).should.be.equal(1);
         });
     });
+
+    describe('#range()', function () {
+        it('should return range for [x..y]', function () {
+            guitar.tools.range(1, 3).should.be.deep.equal([1, 2, 3]);
+        });
+
+        it('should affect by step', function () {
+            guitar.tools.range(1, 5, 2).should.be.deep.equal([1, 3, 5]);
+        });
+
+        it('should return reversed for negative step', function () {
+            guitar.tools.range(5, 1, -1).should.be.deep.equal([5, 4, 3, 2, 1]);
+        });
+    });
+
+    describe('#rawCoeff()', function () {
+        it('All values should be with same divisors', function () {
+            var c = guitar.tools.rawCoeff();
+
+            for (var i = 1; i < c.length; ++i) {
+                var p = c[i - 1];
+                var n = c[i];
+
+                chai.assert.closeTo(p / n, Math.pow(2, 1 / 12), 1E-5);
+            }
+        });
+    });
 });
