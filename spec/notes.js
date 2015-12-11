@@ -68,5 +68,11 @@ describe('notes', function() {
                 $n.showNote($n.parseNote(note), 'simple').should.be.equal(note.slice(0, 1));
             });
         });
+
+        it('Must throws error on incorrect mode', function () {
+            (function () {
+                $n.showNote('C1', 'abracadabra');
+            }).should.throw(Error);
+        });
     });
 });
