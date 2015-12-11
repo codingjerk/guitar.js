@@ -80,4 +80,30 @@ describe('tools', function() {
             }
         });
     });
+
+    describe('#parseColor()', function () {
+        it('Must work with short notation', function () {
+            guitar.tools.parseColor('#000').should.be.deep.equal([0, 0, 0]);
+            guitar.tools.parseColor('#FFF').should.be.deep.equal([255, 255, 255]);
+            guitar.tools.parseColor('#abc').should.be.deep.equal([17 * 10, 17 * 11, 17 * 12]);
+        });
+
+        it('Must work with long notation', function () {
+            guitar.tools.parseColor('#000000').should.be.deep.equal([0, 0, 0]);
+            guitar.tools.parseColor('#FFFFFF').should.be.deep.equal([255, 255, 255]);
+            guitar.tools.parseColor('#AABBCC').should.be.deep.equal([17 * 10, 17 * 11, 17 * 12]);
+        });
+
+        it('Must work with rgb values', function () {
+            guitar.tools.parseColor('rgb(1, 2, 3)').should.be.deep.equal([1, 2, 3]);
+            guitar.tools.parseColor('rgb(0000, 0123, 000)').should.be.deep.equal([0, 123, 0]);
+            chai.assert.equal(guitar.tools.parseColor('rgb()'), null);
+        });
+
+        it('Must work with rgba values', function () {
+            guitar.tools.parseColor('rgba(1, 2, 3, 1)').should.be.deep.equal([1, 2, 3, 1]);
+            guitar.tools.parseColor('rgba(0000, 0123, 000, 0)').should.be.deep.equal([0, 123, 0, 0]);
+            chai.assert.equal(guitar.tools.parseColor('rgba()'), null);
+        });
+    });
 });
