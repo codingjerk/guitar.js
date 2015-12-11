@@ -674,7 +674,7 @@ var Guitar = function (id, settings) {
         }
 
         return range;
-    }
+    };
 
     tools.rawCoeff = function() {
         if (this.result === undefined) {
@@ -711,8 +711,8 @@ var Guitar = function (id, settings) {
         return null;
     };
 
-    tools.chooseForeground = function(backgroud) {
-        var rgb = tools.parseColor(backgroud);
+    tools.chooseForeground = function(background) {
+        var rgb = tools.parseColor(background);
         var max = tools.max(rgb);
         var limit = 127;
 
