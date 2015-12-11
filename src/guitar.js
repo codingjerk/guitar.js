@@ -2,7 +2,7 @@ var Guitar = function (id, settings) {
     'use strict';
 
     var guitar = this;
-    var tools = {};
+    var tools = guitar.tools = {};
     var notes = {};
     var $s, $x, $c, $e; // Aliases to settings, context and canvas
 
@@ -648,7 +648,7 @@ var Guitar = function (id, settings) {
     tools.sum = function(list) {
         return list.reduce(function(acc, x) {
             return acc + x;
-        });
+        }, 0);
     };
 
     tools.max = function(list) {
