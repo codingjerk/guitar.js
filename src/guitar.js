@@ -47,6 +47,8 @@ var Guitar = function (id, settings) {
             measureText: function () {return {width: Infinity};},
             scale: function () {},
             fillText: function () {},
+            translate: function () {},
+            rotate: function () {},
         };
 
         guitar.events = {};
@@ -846,7 +848,7 @@ var Guitar = function (id, settings) {
     }
 
     guitar.set(settings);
-}
+};
 
 // Node.js initialization to test
 if (typeof module !== 'undefined') {
