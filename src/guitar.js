@@ -1,10 +1,12 @@
 var Guitar = function (id, settings) {
+    'use strict';
+
     var guitar = this;
     var tools = {};
     var notes = {};
     var $s, $x, $c, $e; // Aliases to settings, context and canvas
 
-    guitar.create = function() {
+    guitar.init = function() {
         guitar.id = id;
         guitar.container = document.getElementById(id);
         guitar.container.style.overflow = 'hidden';
@@ -23,6 +25,36 @@ var Guitar = function (id, settings) {
         addEventListener('resize', guitar.redraw);
         $c.addEventListener('click', guitar.onclick);
         $c.addEventListener('mousemove', guitar.onmove);
+    };
+
+    guitar.mock = function() {
+        guitar.id = id;
+        guitar.container = {offsetWidth: 500, offsetHeight: 500};
+
+        guitar.canvas = {width: 500, height: 150};
+
+        guitar.context = {
+            clearRect: function () {},
+            beginPath: function () {},
+            arc: function () {},
+            fill: function () {},
+            stroke: function () {},
+            closePath: function () {},
+            moveTo: function () {},
+            lineTo: function () {},
+            save: function () {},
+            restore: function () {},
+            measureText: function () {return {width: Infinity};},
+            scale: function () {},
+            fillText: function () {},
+        };
+
+        guitar.events = {};
+
+        $s = guitar.settings;
+        $x = guitar.context;
+        $c = guitar.canvas;
+        $e = guitar.events;
     };
 
     guitar.set = function(obj) {
@@ -792,6 +824,14 @@ var Guitar = function (id, settings) {
         'marks': [],
     };
 
-    guitar.create();
+    if (typeof document !== 'undefined') {
+        guitar.init();
+    } else {
+        guitar.mock();
+    }
+
     guitar.set(settings);
 };
+
+// Node.js initialization to test
+(typeof module === 'undefined') || (module.exports = Guitar);
