@@ -3,6 +3,7 @@ var uglify = require('gulp-uglify');
 var mocha = require('gulp-mocha');
 var coveralls = require('gulp-coveralls');
 var rename = require('gulp-rename');
+var lint = require('gulp-jshint');
 
 gulp.task('build', function() {
     return gulp.src('src/*.js')
@@ -18,13 +19,20 @@ gulp.task('test', function() {
         .pipe(mocha({reporter: 'nyan'}));
 });
 
-gulp.task('watch', function() {
-    gulp.watch('src/*.js', ['build', 'test']);
-});
-
 gulp.task('coveralls', function() {
     return gulp.src('./coverage/lcov.info')
         .pipe(coveralls());
 });
 
-gulp.task('default', ['build', 'test', 'coveralls']);
+gulp.task('lint', function() {
+    return gulp.src('src/*.js')
+        .pipe(lint())
+	.pipe(lint.reporter('jshint-stylish'));
+});
+
+gulp.task('watch', function() {
+    gulp.watch('src/*.js', ['build', 'lint', 'test']);
+    gulp.watch('spec/*.js', ['test']);
+});
+
+gulp.task('default', ['build', 'lint', 'test', 'coveralls']);
