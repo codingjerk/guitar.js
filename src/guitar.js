@@ -85,21 +85,21 @@ var Guitar = function (id, settings) {
         guitar.frets0 = [0].concat(guitar.frets);
         guitar.strings = tools.range(0, $s['string-count'] - 1);
 
-        if ($s['orientation'] === 'vertical') {
+        if ($s.orientation === 'vertical') {
             guitar.long = guitar.height;
             guitar.short = guitar.width;
 
             guitar.coords = function(l, s) {
                 return [s, l];
             };
-        } else if ($s['orientation'] === 'horizontal') {
+        } else if ($s.orientation === 'horizontal') {
             guitar.long = guitar.width;
             guitar.short = guitar.height;
 
             guitar.coords = function(l, s) {
                 return [l, s];
             };
-        } else if ($s['orientation'] === 'auto') {
+        } else if ($s.orientation === 'auto') {
             guitar.long = function() {
                 return tools.max([$c.width, $c.height]);
             };
@@ -132,20 +132,20 @@ var Guitar = function (id, settings) {
                 fret: fret,
             };
 
-            text && (obj.text = text);
-            size && (obj.size = size);
-            color && (obj.color = color);
-            border && (obj.border = border);
+            if (text) obj.text = text;
+            if (size) obj.size = size;
+            if (color) obj.color = color;
+            if (border) obj.border = border;
         }
 
-        $s['marks'].push(obj);
+        $s.marks.push(obj);
         guitar.redraw();
     };
 
     guitar.unmark = function(string, fret) {
         var id = guitar.findMark(string, fret);
         if (id !== -1) {
-            $s['marks'].splice(id, 1);
+            $s.marks.splice(id, 1);
             guitar.redraw();
         }
     };
@@ -159,7 +159,7 @@ var Guitar = function (id, settings) {
     };
 
     guitar.resetMarks = function() {
-        $s['marks'] = [];
+        $s.marks = [];
         guitar.redraw();
     };
 
@@ -170,7 +170,7 @@ var Guitar = function (id, settings) {
         }
 
         var id = -1;
-        $s['marks'].forEach(function(m, i) {
+        $s.marks.forEach(function(m, i) {
             if (m.string === string && m.fret === fret) {
                 id = i;
             }
@@ -184,17 +184,16 @@ var Guitar = function (id, settings) {
     };
 
     guitar.tune = function(tune) {
-        if (tune instanceof String) {
-            tune = tune.toLowerCase();
-        }
-
         var tunes = {
             'eadgbe': ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'],
             'default': ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'],
             'drop-d': ['D2', 'A2', 'D3', 'G3', 'B3', 'E4'],
         };
 
-        tunes[tune] && (tune = tunes[tune]);
+        if (tune instanceof String) {
+            tune = tune.toLowerCase();
+            tune = tunes[tune];
+        }
 
         guitar.set('tuning', tune.map(notes.parseNote));
     };
@@ -276,37 +275,37 @@ var Guitar = function (id, settings) {
 
         guitar.frets.forEach(function(fret) {
             var sign = $s['fret-signs'][fret];
-            sign && guitar.drawSign(fret, sign);
+            if (sign) guitar.drawSign(fret, sign);
         });
 
         guitar.frets.forEach(guitar.drawFret);
         guitar.frets.forEach(guitar.drawFretNumber);
 
         guitar.strings.forEach(guitar.drawString);
-        $s['show-tuning'] && guitar.strings.forEach(guitar.drawTuning);
+        if ($s['show-tuning']) guitar.strings.forEach(guitar.drawTuning);
 
         guitar.drawBridge();
 
-        $s['marks'].forEach(guitar.drawMark);
+        $s.marks.forEach(guitar.drawMark);
     };
 
     guitar.rebuildFrets = function() {
         if (this.oldLong === guitar.long()) return;
 
-        if ($s['scale'] === 'real') {
+        if ($s.scale === 'real') {
             var coeff = guitar.fretCoeff();
             guitar.fretLs = [0];
             for (var n = 0; n < $s['fret-count']; ++n) {
                 guitar.fretLs[n] += coeff[n];
                 guitar.fretLs[n + 1] = guitar.fretLs[n];
             }
-        } else if ($s['scale'] === 'linear') {
+        } else if ($s.scale === 'linear') {
             guitar.fretLs = [];
-            for (var n = 0; n < $s['fret-count']; ++n) {
-                guitar.fretLs[n] = (guitar.workLong() - $s['fret-width']) * (n + 1) / $s['fret-count'];
+            for (var x = 0; x < $s['fret-count']; ++x) {
+                guitar.fretLs[x] = (guitar.workLong() - $s['fret-width']) * (x + 1) / $s['fret-count'];
             }
         } else {
-            throw Error('Unknown scale option value: ' + $s['scale']);
+            throw Error('Unknown scale option value: ' + $s.scale);
         }
 
         this.oldLong = guitar.long();
@@ -418,7 +417,7 @@ var Guitar = function (id, settings) {
         var l = $s['bridge-margin'] / 2;
         var s = guitar.startStringS(string);
 
-        var text = notes.showNote($s['tuning'][$s['string-count'] - 1 - string], $s['show-tuning']);
+        var text = notes.showNote($s.tuning[$s['string-count'] - 1 - string], $s['show-tuning']);
 
         tools.drawScaledText(text, l, s, $s['tuning-font'], $s['tuning-color'], guitar.startStringGap(), 0, 0);
     };
@@ -509,7 +508,7 @@ var Guitar = function (id, settings) {
 
         var text = mark.text || $s['mark-text'];
         if (!mark.text) {
-            var stringNote = $s['tuning'][$s['string-count'] - 1 - mark.string];
+            var stringNote = $s.tuning[$s['string-count'] - 1 - mark.string];
             var fretNote = stringNote + mark.fret;
 
             text = notes.showNote(fretNote, $s['show-notes']);
@@ -539,7 +538,7 @@ var Guitar = function (id, settings) {
         var fret = guitar.fretByL(ls[0]);
         var string = guitar.stringByS(ls[1], fret.value);
 
-        var clickListeners = $e['click'] || [];
+        var clickListeners = $e.click || [];
         for (var i = 0; i < clickListeners.length; ++i) {
             clickListeners[i](string, fret, e);
         }
@@ -551,7 +550,7 @@ var Guitar = function (id, settings) {
         var fret = guitar.fretByL(ls[0]);
         var string = guitar.stringByS(ls[1], fret.value);
 
-        var moveListeners = $e['move'] || [];
+        var moveListeners = $e.move || [];
         for (var i = 0; i < moveListeners.length; ++i) {
             moveListeners[i](string, fret, e);
         }
@@ -584,7 +583,7 @@ var Guitar = function (id, settings) {
         $x.arc(xy[0], xy[1], radius, 0, 2 * Math.PI, false);
         $x.fillStyle = color;
         $x.fill();
-        lineSize && lineColor && $x.stroke();
+        if (lineSize && lineColor) $x.stroke();
         $x.closePath();
     };
 
@@ -664,9 +663,9 @@ var Guitar = function (id, settings) {
     };
 
     tools.range = function(start, end, step) {
-        var range = [];
+        step = step || 1;
 
-        typeof step === 'undefined' && (step = 1);
+        var range = [];
 
         while (step > 0 ? end >= start : end <= start) {
             range.push(start);
@@ -691,15 +690,15 @@ var Guitar = function (id, settings) {
         var toInt = function(x) {return parseInt(x, 10);};
 
         // #xxxxxx
-        var r = val.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
-        if (r) {
-            return r.slice(1,4).map(function(x) { return parseInt(x, 16); });
+        var longR = val.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+        if (longR) {
+            return longR.slice(1,4).map(function(x) { return parseInt(x, 16); });
         }
 
         // #xxx
-        var r = val.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i);
-        if (r) {
-            return r.slice(1,4).map(function(x) { return 0x11 * parseInt(x, 16); });
+        var shortR = val.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i);
+        if (shortR) {
+            return shortR.slice(1,4).map(function(x) { return 0x11 * parseInt(x, 16); });
         }
 
         // rgb(x, x, x)
@@ -834,4 +833,6 @@ var Guitar = function (id, settings) {
 };
 
 // Node.js initialization to test
-(typeof module === 'undefined') || (module.exports = Guitar);
+if (typeof module !== 'undefined') {
+    module.exports = Guitar;
+}
