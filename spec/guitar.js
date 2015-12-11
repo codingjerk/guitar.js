@@ -45,7 +45,7 @@ describe('Guitar public interface', function() {
                 scale: 'linear',
                 'string-width': [1,2,3,4,5,6],
                 'fret-number-side': 'left',
-                signs: {
+                'fret-signs': {
                     1: 'star',
                     2: 'double-star',
                     3: 'dot',
