@@ -3,7 +3,7 @@ var Guitar = function (id, settings) {
 
     var guitar = this;
     var tools = guitar.tools = {};
-    var notes = {};
+    var notes = guitar.notes = {};
     var $s, $x, $c, $e; // Aliases to settings, context and canvas
 
     guitar.init = function() {
@@ -768,7 +768,7 @@ var Guitar = function (id, settings) {
             return result.slice(0, result.length - 1);
         }
 
-        if (mode === 'full') {
+        if (mode === undefined || mode === 'full') {
             return result;
         }
 
