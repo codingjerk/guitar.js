@@ -128,7 +128,7 @@ var Guitar = function (id, settings) {
         guitar.unmark(string, fret);
 
         var obj = string;
-        if (arguments.length !== 1) {
+        if (fret !== undefined) {
             obj = {
                 string: string,
                 fret: fret,
@@ -154,9 +154,9 @@ var Guitar = function (id, settings) {
 
     guitar.switchMark = function(string, fret, text, size, color, border) {
         if (guitar.isMarked(string, fret)) {
-            guitar.mark.apply(arguments);
+            guitar.unmark.apply(this, arguments);
         } else {
-            guitar.unmark.apply(arguments);
+            guitar.mark.apply(this, arguments);
         }
     };
 
@@ -166,19 +166,18 @@ var Guitar = function (id, settings) {
     };
 
     guitar.findMark = function(string, fret) {
-        if (arguments.length === 1) {
+        if (fret === undefined) {
             fret = string.fret;
             string = string.string;
         }
 
-        var id = -1;
-        $s.marks.forEach(function(m, i) {
-            if (m.string === string && m.fret === fret) {
-                id = i;
+        for (var i = 0; i < $s.marks.length; ++i) {
+            if ($s.marks[i].string === string && $s.marks[i].fret === fret) {
+                return i;
             }
-        });
+        }
 
-        return id;
+        return -1;
     };
 
     guitar.isMarked = function(string, fret) {
@@ -192,7 +191,7 @@ var Guitar = function (id, settings) {
             'drop-d': ['D2', 'A2', 'D3', 'G3', 'B3', 'E4'],
         };
 
-        if (tune instanceof String) {
+        if (typeof tune === 'string') {
             tune = tune.toLowerCase();
             tune = tunes[tune];
         }
