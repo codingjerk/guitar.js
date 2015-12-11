@@ -18,9 +18,37 @@ Features
 * No dependencies
 * Fine default look
 
+Usage
+-----
+*Note: documentation has more information*
+
+#### 0. Include a guitar.js
+```html
+<script src="some_dir/guitar.js/build/guitar.min.js"></script>
+```
+
+#### 1. Create a container
+```html
+<div id='guitar'></div>
+```
+
+#### 2. Create a guitar
+```javascript
+var guitar = new Guitar('guitar'); // Use your container id
+```
+
+#### 2.5. (Optional) specify options
+```javascript
+var guitar = new Guitar('guitar', {
+    'end-fret': 5 // Creates a fretboard with frets from 1 to 5 (inclusive)
+});
+```
+
+#### 3. Enjoy
+Doesn't forget to adjust container size.
+
 Some example images
 -----------------
-
 ![Default look](https://raw.githubusercontent.com/chezstov/guitar.js/master/img/default.png)
 
 ![Flipped](https://raw.githubusercontent.com/chezstov/guitar.js/master/img/flip.png)
