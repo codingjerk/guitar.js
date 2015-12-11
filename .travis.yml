@@ -2,4 +2,8 @@ language: node_js
 
 before_script:
   - npm install -g gulp
-  - npm install gulp gulp-mocha gulp-uglify chai gulp-coveralls
+  - npm install -g istanbul
+  - npm install gulp gulp-mocha gulp-uglify chai gulp-coveralls mocha mocha-lcov-reporter
+  - istanbul cover ./node_modules/mocha/bin/_mocha spec --report lcovonly -- -R spec
+
+script: gulp
