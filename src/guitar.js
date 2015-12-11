@@ -702,9 +702,15 @@ var Guitar = function (id, settings) {
         }
 
         // rgb(x, x, x)
-        var digits = /(.*?)rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/.exec(val);
-        if (digits.length === 5) {
-            return digits.slice(2).map(toInt);
+        var rgb = /(.*?)rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/.exec(val);
+        if (rgb && rgb.length === 5) {
+            return rgb.slice(2).map(toInt);
+        }
+
+        // rgba(x, x, x)
+        var rgba = /(.*?)rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\,\s*(\d+)\s*\)/.exec(val);
+        if (rgba && rgba.length === 6) {
+            return rgba.slice(2).map(toInt);
         }
 
         return null;
