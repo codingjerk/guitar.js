@@ -716,16 +716,26 @@ var Guitar = function (id, settings) {
         return null;
     };
 
-    tools.chooseForeground = function(background) {
-        var rgb = tools.parseColor(background);
-        var max = tools.max(rgb);
+    tools.isDark = function(color) {
+        var rgb = tools.parseColor(color);
+        var r = rgb[0], g = rgb[1], b = rgb[2];
+
+        var average = r * 0.25 + g * 0.5 + b * 0.25; // Green has more weight
         var limit = 127;
 
-        if (max >= limit) {
+        return average >= limit;
+    };
+
+    tools.isLight = function(color) {
+        return !tools.isDark(color);
+    };
+
+    tools.chooseForeground = function(background) {
+        if (tools.isLight(background)) {
             return '#333';
-        } else {
-            return '#fafafa';
         }
+
+        return '#fafafa';
     };
 
     notes.parseNote = function(text) {
@@ -836,7 +846,7 @@ var Guitar = function (id, settings) {
     }
 
     guitar.set(settings);
-};
+}
 
 // Node.js initialization to test
 if (typeof module !== 'undefined') {
