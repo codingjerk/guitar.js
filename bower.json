@@ -18,7 +18,10 @@
   "ignore": [
     "**/.*",
     "src",
+    "spec",
     "example",
+    "Gulpfile.js",
+    "coverage",
     "img",
     "*.md",
     "node_modules",
