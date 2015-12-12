@@ -702,7 +702,7 @@ var Guitar = function (id, settings) {
         var average = r * 0.25 + g * 0.5 + b * 0.25; // Green has more weight
         var limit = 127;
 
-        return average >= limit;
+        return average <= limit;
     };
 
     tools.isLight = function(color) {
