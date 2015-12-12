@@ -46,6 +46,9 @@ describe('Guitar public interface', function() {
                 'string-order': 'right-to-left',
                 scale: 'linear',
                 capo: 2,
+                'fret-colors': {
+                    2: '#f11',
+                },
                 'string-width': [1,2,3,4,5,6],
                 'fret-number-side': 'left',
                 'fret-signs': {
