@@ -85,14 +85,91 @@ Do same as ``unmark(object)``
 switchMark
 ----------
 
+``Guitar.mark(mark-object)``
+
+Sets mark if not setted, and unsets if setted.
+
+``Guitar.mark(string, fret, [text], [size], [background-color], [border-object])``
+
+Accepts all ``Guitar.mark`` arguments, but then it does unset, only string and fret used.
+
+::
+
+    var guitar = new Guitar('guitar');
+
+    // First call will sets mark
+    guitar.switchMark({
+        string: 1,
+        fret: 5,
+        border: {
+            size: 2,
+            color: '#333'
+        }
+    });
+
+    // Second call will unsets it
+    guitar.switchMark(1, 5);
+
 resetMarks
 ----------
+
+``Guitar.resetMarks()``
+
+Unsets all setted marks.
+
+::
+
+    var guitar = new Guitar('guitar');
+    guitar.mark(0, 0);
+    guitar.mark(0, 2);
+    guitar.mark(0, 3);
+    // ...
+    guitar.mark(0, 12);
+
+    guitar.resetMarks();
 
 isMarked
 --------
 
+``Guitar.isMarked(mark-object)``
+
+Returns ``true`` if mark setted at ``string`` and ``fret`` coords. ``false``, if not.
+
+``Guitar.isMarked(string, fret)``
+
+Same, but accepts separate arguments.
+
+::
+
+    var guitar = new Guitar('guitar');
+
+    guitar.isMarked({
+        string: 1,
+        fret: 5,
+    }); // false
+
+    guitar.mark(1, 5);
+
+    guitar.isMarked(1, 5); // true
+
 tune
 ----
+
+``Guitar.tune(tuning-name)``
+
+Sets guitar tuning by name. As example ``'eadgbe'``, ``'default'``, ``'drop-d'``.
+
+``Guitar.tune(notes)``
+
+Sets guitar tuning by separate notes (in full format).
+
+::
+
+    var guitar = new Guitar('guitar');
+
+    guitar.tune('drop-d');
+
+    guitar.tune(['D2', 'A2', 'D3', 'G3', 'B3', 'E4']);
 
 addEventListener
 ----------------
