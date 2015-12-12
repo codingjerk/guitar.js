@@ -78,6 +78,10 @@ var Guitar = function (id, settings) {
         for (var property in settings) {
             if (settings.hasOwnProperty(property)) {
                 $s[property] = settings[property];
+
+                if (property === 'scale') {
+                    guitar.rebuildFrets.oldLong = 'FUCKING UPDATE';
+                }
             }
         }
 
@@ -118,7 +122,7 @@ var Guitar = function (id, settings) {
                 }
             };
         } else {
-            throw Error('Option orientation must be vertical, horizontal or auto');
+            throw Error('Option orientation must be vertical, horizontal or auto, but was ' + $s.orientation);
         }
 
         guitar.redraw();
@@ -256,11 +260,6 @@ var Guitar = function (id, settings) {
         return s * (1 - c) + e * c;
     };
 
-    guitar.stringInterS = function(string, fret) {
-        var fretL = guitar.interFretL(fret);
-        return guitar.stringSByFretL(string, fretL);
-    };
-
     guitar.stringS = function(string, fret) {
         var fretL = guitar.fretL(fret);
         return guitar.stringSByFretL(string, fretL);
@@ -291,7 +290,9 @@ var Guitar = function (id, settings) {
     };
 
     guitar.rebuildFrets = function() {
-        if (this.oldLong === guitar.long()) return;
+        var $f = guitar.rebuildFrets;
+
+        if ($f.oldLong === guitar.long()) return;
 
         if ($s.scale === 'real') {
             var coeff = guitar.fretCoeff();
@@ -309,7 +310,7 @@ var Guitar = function (id, settings) {
             throw Error('Unknown scale option value: ' + $s.scale);
         }
 
-        this.oldLong = guitar.long();
+        $f.oldLong = guitar.long();
     };
 
     guitar.fretCoeff = function() {
