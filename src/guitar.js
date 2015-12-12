@@ -6,12 +6,12 @@ var Guitar = function (id, settings) {
     var notes = guitar.notes = {};
     var $s, $x, $c, $e; // Aliases to settings, context and canvas
 
-    guitar.init = function() {
+    guitar.init = function(window) {
         guitar.id = id;
-        guitar.container = document.getElementById(id);
+        guitar.container = window.document.getElementById(id);
         guitar.container.style.overflow = 'hidden';
 
-        guitar.canvas = document.createElement('canvas');
+        guitar.canvas = window.document.createElement('canvas');
 
         guitar.container.appendChild(guitar.canvas);
         guitar.context = guitar.canvas.getContext('2d');
@@ -22,41 +22,9 @@ var Guitar = function (id, settings) {
         $c = guitar.canvas;
         $e = guitar.events;
 
-        addEventListener('resize', guitar.redraw);
+        window.addEventListener('resize', guitar.redraw);
         $c.addEventListener('click', guitar.onclick);
         $c.addEventListener('mousemove', guitar.onmove);
-    };
-
-    guitar.mock = function() {
-        guitar.id = id;
-        guitar.container = {offsetWidth: 500, offsetHeight: 500};
-
-        guitar.canvas = {width: 500, height: 150};
-
-        guitar.context = {
-            clearRect: function () {},
-            beginPath: function () {},
-            arc: function () {},
-            fill: function () {},
-            stroke: function () {},
-            closePath: function () {},
-            moveTo: function () {},
-            lineTo: function () {},
-            save: function () {},
-            restore: function () {},
-            measureText: function () {return {width: Infinity};},
-            scale: function () {},
-            fillText: function () {},
-            translate: function () {},
-            rotate: function () {},
-        };
-
-        guitar.events = {};
-
-        $s = guitar.settings;
-        $x = guitar.context;
-        $c = guitar.canvas;
-        $e = guitar.events;
     };
 
     guitar.set = function(obj) {
@@ -841,12 +809,8 @@ var Guitar = function (id, settings) {
         'marks': [],
     };
 
-    if (typeof document !== 'undefined') {
-        guitar.init();
-    } else {
-        guitar.mock();
-    }
-
+    var w = (typeof window !== 'undefined')? window: id;
+    guitar.init(w);
     guitar.set(settings);
 };
 
