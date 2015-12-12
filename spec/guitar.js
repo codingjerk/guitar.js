@@ -56,6 +56,23 @@ describe('Guitar public interface', function() {
             });
         });
 
+        it('Must be able to set string-colors', function () {
+            guitar = new Guitar(fake);
+
+            guitar.set('string-color', '#321');
+
+            guitar.settings.should.have.property('string-color');
+            guitar.settings['string-color'].should.be.equal('#321');
+        });
+
+        it('Must be able to set string-colors to array', function () {
+            var colors = ['#123', '#234', '#345', '#456', '#567', '#678'];
+            guitar.set('string-color', colors);
+
+            guitar.settings.should.have.property('string-color');
+            guitar.settings['string-color'].should.be.deep.equal(colors);
+        });
+
         it('Must be able to change scale', function () {
             var g = new Guitar(fake, {
                 scale: 'linear',
@@ -75,6 +92,13 @@ describe('Guitar public interface', function() {
             guitar = new Guitar(fake);
             (function () {
                 guitar.set('string-width', 'abracadabra');
+            }).should.throw(Error);
+        });
+
+        it('Must throw errors with bad string-color value', function () {
+            guitar = new Guitar(fake);
+            (function () {
+                guitar.set('string-color', null);
             }).should.throw(Error);
         });
 

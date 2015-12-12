@@ -399,7 +399,16 @@ var Guitar = function (id, settings) {
         var endL = guitar.long() - $s['space-margin'];
         var endS = guitar.endStringS(i);
 
-        tools.drawLine(startL, startS, endL, endS, $s['string-color'], guitar.stringWidth(i));
+        var color = $s['string-color'];
+        if (typeof color === 'string') {
+            // pass
+        } else if (color instanceof Array) {
+            color = color[i];
+        } else {
+            throw new Error('string-color must be string or array');
+        }
+
+        tools.drawLine(startL, startS, endL, endS, color, guitar.stringWidth(i));
     };
 
     guitar.drawFret = function(i) {
