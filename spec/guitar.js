@@ -228,8 +228,12 @@ describe('Guitar events', function() {
 
     describe('#removeEventListener()', function () {
         it('Should simply work', function () {
-            guitar.removeEventListener('move');
-            guitar.removeEventListener('click');
+            var f = function() {};
+            
+            guitar.addEventListener('move', f);
+            guitar.addEventListener('click', f);
+            guitar.removeEventListener('move', f);
+            guitar.removeEventListener('click', f);
         });
     });
 
