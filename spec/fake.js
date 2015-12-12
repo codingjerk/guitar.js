@@ -25,6 +25,7 @@ module.exports = {
                 lineTo: $f,
                 save: $f,
                 restore: $f,
+                fillRect: $f,
                 measureText: function() {return {width: Infinity};},
                 scale: $f,
                 fillText: $f,

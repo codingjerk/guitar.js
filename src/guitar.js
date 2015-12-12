@@ -241,6 +241,13 @@ var Guitar = function (id, settings) {
 
         $x.clearRect(0, 0, $c.width, $c.height);
 
+        for (var fret in $s['fret-colors']) {
+            if ($s['fret-colors'].hasOwnProperty(fret)) {
+                var color = $s['fret-colors'][fret];
+                guitar.highlightFret(fret, color);
+            }
+        }
+
         guitar.frets.forEach(function(fret) {
             var sign = $s['fret-signs'][fret];
             if (sign) guitar.drawSign(fret, sign);
@@ -441,6 +448,16 @@ var Guitar = function (id, settings) {
         tools.drawLine(startL, startS, endL, endS, $s['fret-color'], $s['fret-width']);
     };
 
+    guitar.highlightFret = function(fret, color) {
+        var startL = guitar.fretL(fret - 1) + $s['bridge-margin'];
+        var startS = (guitar.short() - guitar.fretShortByL(startL)) / 2;
+
+        var endL = guitar.fretL(fret) + $s['bridge-margin'];
+        var endS = (guitar.short() - startS);
+
+        tools.drawRect(startL, startS, endL, endS, color);
+    };
+
     guitar.drawFretNumber = function(f) {
         var fretL = guitar.interFretL(f) + $s['bridge-margin'];
         var fretLong = guitar.fretL(f) - guitar.fretL(f - 1);
@@ -568,6 +585,25 @@ var Guitar = function (id, settings) {
 
         $x.moveTo(Math.round(from[0]) + padding, Math.round(from[1]) + padding);
         $x.lineTo(Math.round(to[0]) + padding, Math.round(to[1]) + padding);
+
+        $x.stroke();
+        $x.closePath();
+    };
+
+    tools.drawRect = function(fromL, fromS, toL, toS, style) {
+        var from = guitar.coords(fromL, fromS);
+        var to = guitar.coords(toL, toS);
+
+        $x.beginPath();
+
+        $x.fillStyle = style;
+
+        $x.fillRect(
+            from[0],
+            from[1],
+            to[0] - from[0],
+            to[1] - from[1]
+        );
 
         $x.stroke();
         $x.closePath();
@@ -815,6 +851,9 @@ var Guitar = function (id, settings) {
         'show-notes': 'simple',
         'show-tuning': 'simple',
         'hide-marked-tuning': false,
+
+        'capo': null,
+        'fret-colors': {},
 
         'string-order': 'top-to-bottom',
         'fret-number-side': 'bottom',
