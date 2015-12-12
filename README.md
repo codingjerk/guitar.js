@@ -7,6 +7,7 @@ Guitar.js
 [![Bower](https://img.shields.io/bower/v/guitar.js.svg?style=flat-square)](https://github.com/chezstov/guitar.js)
 [![Travis](https://img.shields.io/travis/chezstov/guitar.js.svg?style=flat-square)](https://travis-ci.org/chezstov/guitar.js)
 [![Coveralls](https://img.shields.io/coveralls/chezstov/guitar.js.svg?style=flat-square)](https://coveralls.io/github/chezstov/guitar.js)
+[![Read The Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat-square)](http://guitarjs.readthedocs.org/en/latest/)
 
 Guitar.js is a guitar fretboard rendering library.
 
