@@ -6,3 +6,5 @@ Welcome to guitar.js's documentation!
 
    intro
    interface
+   settings
+   events
