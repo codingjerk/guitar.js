@@ -250,6 +250,9 @@ var Guitar = function (id, settings) {
         guitar.frets.forEach(guitar.drawFretNumber);
 
         guitar.strings.forEach(guitar.drawString);
+
+        if ($s.capo) guitar.drawCapo($s.capo);
+
         if ($s['show-tuning']) guitar.strings.forEach(guitar.drawTuning);
 
         guitar.drawBridge();
@@ -381,6 +384,21 @@ var Guitar = function (id, settings) {
         var endS = guitar.short() - $s['start-border-margin'];
 
         tools.drawLine(startL, startS, endL, endS, $s['bridge-color'], $s['bridge-width']);
+    };
+
+    guitar.drawCapo = function(fret) {
+        if (fret > $s['end-fret']) return;
+
+        var startL = guitar.interFretL(fret) + $s['bridge-margin'];
+        var endL = startL;
+
+        var short = (guitar.fretShort(fret - 1) + guitar.fretShort(fret)) / 2;
+        var offset = (guitar.short() - short) / 2 - $s['capo-bulge'];
+
+        var startS = offset;
+        var endS = guitar.short() - offset;
+
+        tools.drawLine(startL, startS, endL, endS, $s['capo-color'], $s['capo-width']);
     };
 
     guitar.drawTuning = function(string) {
@@ -761,6 +779,7 @@ var Guitar = function (id, settings) {
         'string-outer-margin': 5,
         'space-margin': 5,
         'fret-number-margin': 3,
+        'capo-bulge': 5,
         'mark-position': 0.55,
 
         'mark-border': {
@@ -774,10 +793,12 @@ var Guitar = function (id, settings) {
         'fret-number-color': '#aaa',
         'mark-color': '#fefefe',
         'tuning-color': '#222',
+        'capo-color': '#333',
 
         'string-width': 1,
         'bridge-width': 6,
         'fret-width': 3,
+        'capo-width': 12,
         'fret-number-font': '12px sans-serif',
         'mark-font': '12px sans-serif',
         'tuning-font': '15px sans-serif',

@@ -45,6 +45,7 @@ describe('Guitar public interface', function() {
             guitar.set({
                 'string-order': 'right-to-left',
                 scale: 'linear',
+                capo: 2,
                 'string-width': [1,2,3,4,5,6],
                 'fret-number-side': 'left',
                 'fret-signs': {
