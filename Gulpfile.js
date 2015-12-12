@@ -14,6 +14,15 @@ gulp.task('build', function() {
         .pipe(gulp.dest('build'));
 });
 
+gulp.task('upload', function() {
+    return gulp.src('src/*.js')
+        .pipe(uglify())
+        .pipe(rename(function(path) {
+            path.extname = ".min.js";
+        }))
+        .pipe(gulp.dest('../chezstov.github.io'));
+});
+
 gulp.task('test', function() {
     return gulp.src('spec/*.js', {read: false})
         .pipe(mocha({reporter: 'nyan'}));
@@ -31,7 +40,7 @@ gulp.task('lint', function() {
 });
 
 gulp.task('watch', function() {
-    gulp.watch('src/*.js', ['build', 'lint', 'test']);
+    gulp.watch('src/*.js', ['build', 'upload', 'lint', 'test']);
     gulp.watch('spec/*.js', ['test']);
 });
 
