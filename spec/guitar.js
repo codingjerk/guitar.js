@@ -1,19 +1,21 @@
 var Guitar = require('../src/guitar.js');
 var chai = require('chai');
+var fake = require('./fake.js');
+
 chai.should();
 
-var guitar = new Guitar();
+var guitar = new Guitar(fake);
 
 describe('Guitar public interface', function() {
     describe('#constructor()', function () {
         it('Should return default guitar', function () {
-            var guitar = new Guitar();
+            var guitar = new Guitar(fake);
             guitar.should.be.an('object');
             guitar.should.have.property('settings');
         });
 
         it('Must allow to change settings in constructor', function () {
-            var guitar = new Guitar('mock', {
+            var guitar = new Guitar(fake, {
                 orientation: 'vertical',
             });
 
@@ -24,10 +26,10 @@ describe('Guitar public interface', function() {
     });
 
     describe('#init()', function () {
-        it('Shouldn\'t work in node environment', function () {
+        it('Should work in node environment', function () {
             (function () {
-                guitar.init();
-            }).should.throw(ReferenceError);
+                guitar.init(fake);
+            }).should.not.throw(Error);
         });
     });
 
@@ -55,7 +57,7 @@ describe('Guitar public interface', function() {
         });
 
         it('Must be able to change scale', function () {
-            var g = new Guitar('mock', {
+            var g = new Guitar(fake, {
                 scale: 'linear',
             });
 
@@ -70,42 +72,42 @@ describe('Guitar public interface', function() {
         });
 
         it('Must throw errors with bad string-width value', function () {
-            guitar = new Guitar();
+            guitar = new Guitar(fake);
             (function () {
                 guitar.set('string-width', 'abracadabra');
             }).should.throw(Error);
         });
 
         it('Must throw errors on bad orientation', function () {
-            guitar = new Guitar();
+            guitar = new Guitar(fake);
             (function () {
                 guitar.set('orientation', 'abracadabra');
             }).should.throw(Error);
         });
 
         it('Must throw errors on bad string-order', function () {
-            guitar = new Guitar();
+            guitar = new Guitar(fake);
             (function () {
                 guitar.set('string-order', 'abracadabra');
             }).should.throw(Error);
         });
 
         it('Must throw errors on bad scale', function () {
-            guitar = new Guitar();
+            guitar = new Guitar(fake);
             (function () {
                 guitar.set('scale', 'abracadabra');
             }).should.throw(Error);
         });
 
         it('Must throw errors on bad string-width', function () {
-            guitar = new Guitar();
+            guitar = new Guitar(fake);
             (function () {
                 guitar.set('string-width', null);
             }).should.throw(Error);
         });
 
         it('Must throw errors on bad signs', function () {
-            guitar = new Guitar();
+            guitar = new Guitar(fake);
             (function () {
                 guitar.set('fret-signs', {
                     1: 'abracadabra',
@@ -114,7 +116,7 @@ describe('Guitar public interface', function() {
         });
 
         it('Must throw errors on bad fret-number-side', function () {
-            guitar = new Guitar();
+            guitar = new Guitar(fake);
             (function () {
                 guitar.set('fret-number-side', 'abracadabra');
             }).should.throw(Error);
@@ -123,7 +125,7 @@ describe('Guitar public interface', function() {
 
     describe('#mark()', function () {
         it('Must set mark by 2 arguments', function () {
-            guitar = new Guitar();
+            guitar = new Guitar(fake);
 
             guitar.isMarked(1, 1).should.be.equal(false);
             guitar.mark(1, 1);
@@ -229,7 +231,7 @@ describe('Guitar events', function() {
     describe('#removeEventListener()', function () {
         it('Should simply work', function () {
             var f = function() {};
-            
+
             guitar.addEventListener('move', f);
             guitar.addEventListener('click', f);
             guitar.removeEventListener('move', f);

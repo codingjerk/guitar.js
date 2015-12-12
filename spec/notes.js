@@ -1,8 +1,10 @@
 var Guitar = require('../src/guitar.js');
 var chai = require('chai');
+var fake = require('./fake.js');
+
 chai.should();
 
-var guitar = new Guitar();
+var guitar = new Guitar(fake);
 var $n = guitar.notes;
 
 describe('notes', function() {
