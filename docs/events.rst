@@ -24,6 +24,6 @@ Fires then user clicks on canvas (in every place). Return ``match objects``, tha
 move
 ----
 
-``click(string-match, fret-match, original-event)``
+``move(string-match, fret-match, original-event)``
 
-Jist like click event, but fires then user moves mouse over canvas.
+Jist like ``click`` event, but fires then user moves mouse over canvas.
