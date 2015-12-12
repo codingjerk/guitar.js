@@ -402,6 +402,8 @@ var Guitar = function (id, settings) {
     };
 
     guitar.drawTuning = function(string) {
+        if ($s['hide-marked-tuning'] && guitar.isMarked(string, 0)) return;
+
         var l = $s['bridge-margin'] / 2;
         var s = guitar.startStringS(string);
 
@@ -812,6 +814,7 @@ var Guitar = function (id, settings) {
 
         'show-notes': 'simple',
         'show-tuning': 'simple',
+        'hide-marked-tuning': false,
 
         'string-order': 'top-to-bottom',
         'fret-number-side': 'bottom',
