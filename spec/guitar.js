@@ -212,3 +212,50 @@ describe('Guitar public interface', function() {
         });
     });
 });
+
+describe('Guitar events', function() {
+    describe('#addEventListener()', function () {
+        it('Should simply work', function () {
+            guitar.addEventListener('move', function(s, f) {
+                // pass
+            });
+
+            guitar.addEventListener('click', function(s, f) {
+                // pass
+            });
+        });
+    });
+
+    describe('#removeEventListener()', function () {
+        it('Should simply work', function () {
+            guitar.removeEventListener('move');
+            guitar.removeEventListener('click');
+        });
+    });
+
+    describe('$e.click', function () {
+        it('Should called by onclick', function () {
+            guitar.addEventListener('click', function(s, f) {
+                s.should.have.property('value');
+                s.should.have.property('threshold');
+                f.should.have.property('value');
+                f.should.have.property('threshold');
+            });
+
+            guitar.onclick({offsetX: 10, offsetY: 10});
+        });
+    });
+
+    describe('$e.move', function () {
+        it('Should called by onmove', function () {
+            guitar.addEventListener('move', function(s, f) {
+                s.should.have.property('value');
+                s.should.have.property('threshold');
+                f.should.have.property('value');
+                f.should.have.property('threshold');
+            });
+
+            guitar.onmove({offsetX: 10, offsetY: 10});
+        });
+    });
+});
