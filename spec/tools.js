@@ -118,5 +118,19 @@ describe('tools', function() {
         it('Must be light for dark colors', function () {
             chai.assert($t.isLight($t.chooseForeground('#333')));
         });
+
+        it('Checking dark colors', function () {
+            chai.assert($t.isDark('#000'));
+            chai.assert($t.isDark('#333'));
+            chai.assert($t.isDark('#535'));
+            chai.assert($t.isDark('#f00'));
+            chai.assert($t.isDark('#00f'));
+        });
+
+        it('Checking light colors', function () {
+            chai.assert($t.isLight('#fff'));
+            chai.assert($t.isLight('#aaa'));
+            chai.assert($t.isLight('#0f0'));
+        });
     });
 });
