@@ -174,5 +174,20 @@ Sets guitar tuning by separate notes (in full format).
 addEventListener
 ----------------
 
+``Guitar.addEventListener(event-name, listener)``
+
+Adds event listener by name. Supported events listed in Events chapter.
+
+::
+
+    var guitar = new Guitar('guitar');
+    guitar.addEventListener('click', function(string, fret) {
+        console.log(string, fret);
+    });
+
 removeEventListener
 -------------------
+
+``Guitar.removeEventListener(event-name, listener)``
+
+Removes previously added event listener.
