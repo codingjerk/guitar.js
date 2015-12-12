@@ -1,0 +1,7 @@
+Welcome to guitar.js's documentation!
+=====================================
+
+Contents:
+
+.. toctree::
+   :maxdepth: 2
