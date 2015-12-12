@@ -9,6 +9,7 @@ Constructor
 Creates a canvas inside container (with full size) and start listens basic events (as resize, mousemove and click). You can see settings description in Settings chapter.
 
 ::
+
     var guitar = new Guitar('guitar', {
         orientation: 'vertical'
     });
@@ -25,6 +26,7 @@ Updates settings by values in argument object ``settings``.
 Sets option with name ``name`` to ``value``. Also it forces redraw, so use object-set form for performance.
 
 ::
+
     var guitar = new Guitar('guitar');
 
     guitar.set({
