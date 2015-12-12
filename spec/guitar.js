@@ -54,35 +54,69 @@ describe('Guitar public interface', function() {
             });
         });
 
+        it('Must be able to change scale', function () {
+            var g = new Guitar('mock', {
+                scale: 'linear',
+            });
+
+            g.settings.should.have.property('scale');
+            g.settings.scale.should.be.equal('linear');
+        });
+
+        it('Must work with functions for string-width', function () {
+            guitar.set('string-width', function(i) {
+                return i / 2;
+            });
+        });
+
+        it('Must throw errors with bad string-width value', function () {
+            guitar = new Guitar();
+            (function () {
+                guitar.set('string-width', 'abracadabra');
+            }).should.throw(Error);
+        });
+
         it('Must throw errors on bad orientation', function () {
+            guitar = new Guitar();
             (function () {
                 guitar.set('orientation', 'abracadabra');
             }).should.throw(Error);
         });
 
         it('Must throw errors on bad string-order', function () {
+            guitar = new Guitar();
             (function () {
                 guitar.set('string-order', 'abracadabra');
             }).should.throw(Error);
         });
 
         it('Must throw errors on bad scale', function () {
+            guitar = new Guitar();
             (function () {
                 guitar.set('scale', 'abracadabra');
             }).should.throw(Error);
         });
 
         it('Must throw errors on bad string-width', function () {
+            guitar = new Guitar();
             (function () {
                 guitar.set('string-width', null);
             }).should.throw(Error);
         });
 
         it('Must throw errors on bad signs', function () {
+            guitar = new Guitar();
             (function () {
-                guitar.set('signs', {
+                guitar.set('fret-signs', {
                     1: 'abracadabra',
                 });
+            }).should.throw(Error);
+        });
+
+        it('Must throw errors on bad fret-number-side', function () {
+            guitar = new Guitar();
+            (function () {
+                guitar.set('fret-number-side', 'abracadabra');
             }).should.throw(Error);
         });
     });
@@ -103,6 +137,16 @@ describe('Guitar public interface', function() {
                 string: 2,
             });
             guitar.isMarked(2, 4).should.be.equal(true);
+        });
+
+        it('Must work with color array', function () {
+            guitar.isMarked(3, 12).should.be.equal(false);
+            guitar.mark({
+                string: 3,
+                fret: 12,
+                color: ['#000', '#111', '#222'],
+            });
+            guitar.isMarked(3, 12).should.be.equal(true);
         });
     });
 
