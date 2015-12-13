@@ -112,6 +112,124 @@ bridge-width
 
 ``bridge-width :: Number, default 6``
 
+Signs
+-----
+
+Signs are dots/double dots (or other symbols) on some frets.
+
+fret-signs
+~~~~~~~~~~
+
+``fret-signs :: Object, default {3: 'dot', 5: 'dot', 7: 'double-dot', ...}``
+
+Sets frets (as keys), that be signed by symbol (in value). Possible values are:
+
+* ``dot``
+* ``double-dot``
+* ``star``
+* ``double-star``
+
+sign-size
+~~~~~~~~~
+
+``sign-size :: Number, default 6``
+
+Specifies half-width (radius) of all signs on fretboard.
+
+sign-color
+~~~~~~~~~~
+
+``sign-color :: String, default '#ccc'``
+
+Marks
+-----
+
+Marks are fingertips on strings, that may used to show particular notes, chords or scales on fretboard.
+
+marks
+~~~~~
+
+``marks :: Array, default []``
+
+``marks`` is an array of mark objects, that be drawed on fretboard.
+
+Mark object in general case has structure::
+
+    mark = {
+        string :: Number
+        fret :: Number
+        [size] :: Number
+        [color] :: String
+        [text] :: String
+        [border] = {
+            size :: Number
+            color :: String
+        }
+    }
+
+mark-size
+~~~~~~~~~
+
+``mark-size :: Number, default 13``
+
+Sets default value for marks without defined size.
+
+mark-text
+~~~~~~~~~
+
+``mark-text :: String, default ''``
+
+mark-font
+~~~~~~~~~
+
+``mark-font :: String, default '12px sans-serif'``
+
+mark-color
+~~~~~~~~~~
+
+``mark-color :: String, default '#fefefe'``
+
+mark-border
+~~~~~~~~~~~
+
+``mark-border :: Object, default {size: 2, color: '#666'}``
+
+mark-position
+~~~~~~~~~~~~~
+
+``mark-position :: Number, default 0.55``
+
+Sets ratio there mark must be placed beetween frets.
+
+* 0.5 means center.
+* 0.0 means previous fret line
+* 1.0 means next fret line
+
+Value between 0.6 and 0.9 are good value for realistic rendering. 
+
+show-notes
+~~~~~~~~~~
+
+``show-notes :: String, default 'simple'``
+
+Shows notes value on marks without text. Possible values:
+
+* ``no``
+* ``simple`` - show note without octave (C, D# as example)
+* ``full`` - show not with octave (C2, D#4 as example)
+
+Fret numbers
+------------
+
+fret-number-side
+---
+
+fret-number-font
+---
+
+fret-number-color
+---
+
 Capo
 ----
 
@@ -124,104 +242,44 @@ capo-color
 capo-width
 ~~~~~~~~~~
 
+Tuning
+------
 
+tuning
+~~~~~~
 
+tuning-color
+~~~~~~~~~~~~
 
+tuning-font
+~~~~~~~~~~~
 
+show-tuning
+~~~~~~~~~~~
 
-
-
-
-
-
-
-
-
-
-
+hide-marked-tuning
+~~~~~~~~~~~~~~~~~~
 
 Margins and paddings
 --------------------
 
-string-outer-margin
----
-
 bridge-margin
----
-
-start-border-margin
----
-
-end-border-margin
----
+~~~~~~~~~~~~~
 
 space-margin
----
+~~~~~~~~~~~~
 
 fret-number-margin
----
+~~~~~~~~~~~~~~~~~~
 
 capo-bulge
----
+~~~~~~~~~~
 
+start-border-margin
+~~~~~~~~~~~~~~~~~~~
 
+end-border-margin
+~~~~~~~~~~~~~~~~~
 
-
-
-
-mark-position
----
-
-mark-border
----
-
-sign-color
----
-
-fret-number-color
----
-
-mark-color
----
-
-tuning-color
----
-
-fret-number-font
----
-
-mark-font
----
-
-tuning-font
----
-
-sign-size
----
-
-mark-size
----
-
-mark-text
----
-
-show-notes
----
-
-show-tuning
----
-
-hide-marked-tuning
----
-
-fret-number-side
----
-
-tuning
----
-
-fret-signs
----
-
-marks
----
+string-outer-margin
+~~~~~~~~~~~~~~~~~~~
