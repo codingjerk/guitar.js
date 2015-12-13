@@ -65,7 +65,7 @@ Frets
 fret-color
 ~~~~~~~~~~
 
-``fret-color :: Number, default '#bbb'``
+``fret-color :: String, default '#bbb'``
 
 Sets color of inter-fret border (not for all fret's rect).
 
@@ -105,7 +105,7 @@ Bridge
 bridge-color
 ~~~~~~~~~~~~
 
-``bridge-color :: Number, default '#777'``
+``bridge-color :: String, default '#777'``
 
 bridge-width
 ~~~~~~~~~~~~
@@ -222,13 +222,26 @@ Fret numbers
 ------------
 
 fret-number-side
----
+~~~~~~~~~~~~~~~~
+
+``fret-number-side :: String, default 'bottom'``
+
+Defines there to display fret numbers. Possible values:
+
+* ``top``
+* ``bottom``
+* ``left``
+* ``right``
 
 fret-number-font
----
+~~~~~~~~~~~~~~~~
+
+``fret-number-font :: String, default '12px sans-serif'``
 
 fret-number-color
----
+~~~~~~~~~~~~~~~~~
+
+``fret-number-color :: String, default '#aaa'``
 
 Capo
 ----
@@ -236,11 +249,19 @@ Capo
 capo
 ~~~~
 
+``capo :: Null | Number, default null``
+
+Defines capo fret number. Null to disable.
+
 capo-color
 ~~~~~~~~~~
 
+``capo-color :: String, default '#aaa'``
+
 capo-width
 ~~~~~~~~~~
+
+``capo-width :: Number, default 12``
 
 Tuning
 ------
@@ -248,38 +269,72 @@ Tuning
 tuning
 ~~~~~~
 
+*Note: set tuning througth Guitar.tune method*
+
 tuning-color
 ~~~~~~~~~~~~
+
+``tuning-color :: String, default '#222'``
 
 tuning-font
 ~~~~~~~~~~~
 
+``tuning-font :: String, default '15px sans-serif'``
+
 show-tuning
 ~~~~~~~~~~~
+
+``show-tuning :: String, default 'simple'``
+
+Just as ``show-notes``, possible values are:
+
+* ``no``
+* ``simple`` - to show only note
+* ``full`` - to show note and octave
 
 hide-marked-tuning
 ~~~~~~~~~~~~~~~~~~
 
+``hide-marked-tuning :: Boolean, default false``
+
+If ``true``, then tuning note hides on strings that marked on 0-fret (open), may used to get pretty chord diagrams with open string.
+
 Margins and paddings
 --------------------
+
+By default you doesn't want to edit these values, but if you want good looked big, small, compact or light fretboards, they may be useful.
 
 bridge-margin
 ~~~~~~~~~~~~~
 
+Distance between bridge center and canvas border.
+
 space-margin
 ~~~~~~~~~~~~
+
+Distance between strings end (last fret line) and canvas border.
 
 fret-number-margin
 ~~~~~~~~~~~~~~~~~~
 
+Distance between string and fret numbers.
+
 capo-bulge
 ~~~~~~~~~~
+
+Additional capo length, that adds to basic length (from first string to last string).
 
 start-border-margin
 ~~~~~~~~~~~~~~~~~~~
 
+Distance between string area and canvas borders near bridge (there strings start)
+
 end-border-margin
 ~~~~~~~~~~~~~~~~~
 
+Distance between string area and canvas borders near 'space' (there strings end)
+
 string-outer-margin
 ~~~~~~~~~~~~~~~~~~~
+
+Additional common margin to ``start-border-margin`` and ``end-border-margin``.
